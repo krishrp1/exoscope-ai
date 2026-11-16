@@ -3,16 +3,18 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 import threading
 import time
 import uuid
 from datetime import datetime, timezone
 from typing import Callable
 
-from backend.ml import config
 from backend.ml.train import TrainParams, train_model
 
 logger = logging.getLogger("exoscope.training")
+
+_ABS_PATH = re.compile(r"(?:/[^\s'\":/]+)+/([^\s'\":/]+)")  # /any/absolute/path/name -> name
 
 HISTORY_KEYS = ("loss", "accuracy", "val_loss", "val_accuracy", "learning_rate")
 
@@ -109,7 +111,7 @@ class TrainingManager:
                                    eta_seconds=None)
         except Exception as exc:
             logger.exception("training failed")
-            detail = f"{type(exc).__name__}: {exc}".replace(str(config.REPO_ROOT), ".")  # no absolute paths
+            detail = _ABS_PATH.sub(r"\1", f"{type(exc).__name__}: {exc}")  # file names only, no server paths
             self.status.update(state="failed", message="training failed", error=detail, eta_seconds=None)
             self._publish({"type": "error", "timestamp": _now(), "message": self.status["error"]})
         finally:

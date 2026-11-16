@@ -6,6 +6,7 @@ the file is evaluated or executed.
 from __future__ import annotations
 
 import io
+import math
 
 import numpy as np
 import pandas as pd
@@ -74,6 +75,7 @@ def parse_csv(content: bytes, max_rows: int) -> pd.DataFrame:
 
 MAX_HEADER_CHARS = 20_000
 MAX_COLUMNS = 200
+PREVIEW_CELL_CHARS = 40
 
 
 def detect_delimiter(first_line: str) -> str:
@@ -94,11 +96,9 @@ def _all_numeric(first_line: str, sep: str) -> bool:
     if not fields:
         return False
     try:
-        for f in fields:
-            float(f)
+        return all(math.isfinite(float(f)) for f in fields)  # "nan" or "inf" as a name is a header
     except ValueError:
         return False
-    return True
 
 
 def numeric_columns(df: pd.DataFrame) -> dict[str, dict]:
@@ -132,7 +132,8 @@ def inspect(df: pd.DataFrame) -> dict:
         "n_rows": int(len(df)),
         "columns": [{"name": c, **info[c]} for c in df.columns],
         "suggested_mapping": guess_columns(df, info),
-        "preview": df.head(5).astype(object).where(df.head(5).notna(), None).astype(str).values.tolist(),
+        "preview": [[v if len(v) <= PREVIEW_CELL_CHARS else v[:PREVIEW_CELL_CHARS] + "…" for v in row]
+                    for row in df.head(5).astype(object).where(df.head(5).notna(), None).astype(str).values.tolist()],
         "has_header": bool(df.attrs.get("has_header", True)),
         "help": FORMAT_HELP,
     }
