@@ -30,7 +30,7 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   try {
     response = await fetch(`${API_BASE_URL}${path}`, { ...init, signal: AbortSignal.timeout(timeout) });
   } catch (err) {
-    if (err instanceof DOMException && err.name === "TimeoutError") {
+    if ((err as { name?: string } | null)?.name === "TimeoutError") {
       throw new ApiError(0, "timeout", `The ExoScope backend did not answer within ${timeout / 1000} seconds.`);
     }
     throw new ApiError(0, "network_error",
