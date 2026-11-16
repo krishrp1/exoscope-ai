@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
-import { SectionPending } from "@/components/common/phase-placeholder";
+import { LoadingState } from "@/components/common/states";
+import { DetectPage } from "@/components/pages/detect";
 
 export const metadata: Metadata = { title: "AI Detection Studio" };
 
 export default function Page() {
-  return <SectionPending title="AI Detection Studio" description="Classify a dataset signal or an uploaded light curve." />;
+  return (
+    <Suspense fallback={<LoadingState label="Loading studio" rows={4} />}>
+      <DetectPage />
+    </Suspense>
+  );
 }

@@ -22,7 +22,8 @@ export interface TrainingStream {
 
 /** Live training state from the backend WebSocket. Reconnects with backoff after a drop. */
 export function useTrainingStream(): TrainingStream {
-  const [connection, setConnection] = useState<ConnectionState>("connecting");
+  // Tagged with the attempt it belongs to, so a new attempt reads as "connecting" without an extra render.
+  const [conn, setConn] = useState<{ attempt: number; value: ConnectionState }>({ attempt: 0, value: "connecting" });
   const [status, setStatus] = useState<TrainingStatus | null>(null);
   const [history, setHistory] = useState<TrainingHistory>(EMPTY_HISTORY);
   const [log, setLog] = useState<TrainingEvent[]>([]);
@@ -33,12 +34,11 @@ export function useTrainingStream(): TrainingStream {
   useEffect(() => {
     let closedByUs = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
-    setConnection("connecting");
     const ws = new WebSocket(`${WS_BASE_URL}/ws/training`);
 
     ws.onopen = () => {
       retryRef.current = 0;
-      setConnection("open");
+      setConn({ attempt, value: "open" });
     };
     ws.onmessage = (message) => {
       const event = JSON.parse(message.data as string) as TrainingEvent;
@@ -78,13 +78,16 @@ export function useTrainingStream(): TrainingStream {
         case "finished":
           setStatus((s) => (s ? { ...s, state: (event.state as TrainingStatus["state"]) ?? s.state,
                                   is_running: false, eta_seconds: null } : s));
+          // Resync with a fresh snapshot so finish time and results match the server exactly.
+          closedByUs = true;
+          setAttempt((n) => n + 1);
           break;
       }
       setLog((l) => [...l, event].slice(-MAX_LOG));
     };
     ws.onclose = () => {
-      setConnection("closed");
       if (closedByUs) return;
+      setConn({ attempt, value: "closed" });
       const delay = Math.min(1000 * 2 ** retryRef.current, 10000);
       retryRef.current += 1;
       timer = setTimeout(() => setAttempt((a) => a + 1), delay);
@@ -102,5 +105,6 @@ export function useTrainingStream(): TrainingStream {
     retryRef.current = 0;
     setAttempt((a) => a + 1);
   }, []);
+  const connection: ConnectionState = conn.attempt === attempt ? conn.value : "connecting";
   return { connection, status, history, log, batch, reconnect };
 }

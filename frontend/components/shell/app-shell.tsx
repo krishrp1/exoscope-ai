@@ -3,7 +3,7 @@
 import { Menu, PanelLeftClose, PanelLeftOpen, Telescope } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -71,29 +71,45 @@ function BackendStatus() {
   );
 }
 
+// Sidebar state lives in localStorage so it survives reloads; a memory fallback covers blocked storage.
+const SIDEBAR_KEY = "exoscope.sidebar";
+const SIDEBAR_EVENT = "exoscope:sidebar";
+let sidebarFallback = false;
+
+function readSidebar(): boolean {
+  try {
+    return localStorage.getItem(SIDEBAR_KEY) === "collapsed";
+  } catch {
+    return sidebarFallback;
+  }
+}
+
+function writeSidebar(collapsed: boolean) {
+  sidebarFallback = collapsed;
+  try {
+    localStorage.setItem(SIDEBAR_KEY, collapsed ? "collapsed" : "open");
+  } catch {
+    /* storage unavailable */
+  }
+  window.dispatchEvent(new Event(SIDEBAR_EVENT));
+}
+
+function subscribeSidebar(onChange: () => void) {
+  window.addEventListener(SIDEBAR_EVENT, onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    window.removeEventListener(SIDEBAR_EVENT, onChange);
+    window.removeEventListener("storage", onChange);
+  };
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const collapsed = useSyncExternalStore(subscribeSidebar, readSidebar, () => false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
   const current = NAV_ITEMS.find((n) => (n.href === "/observatory" ? pathname === n.href : pathname.startsWith(n.href)));
 
-  useEffect(() => {
-    try {
-      setCollapsed(localStorage.getItem("exoscope.sidebar") === "collapsed");
-    } catch {
-      /* storage unavailable */
-    }
-  }, []);
-  const toggle = () => {
-    setCollapsed((c) => {
-      try {
-        localStorage.setItem("exoscope.sidebar", c ? "open" : "collapsed");
-      } catch {
-        /* storage unavailable */
-      }
-      return !c;
-    });
-  };
+  const toggle = () => writeSidebar(!collapsed);
 
   return (
     <div className="flex min-h-screen w-full">

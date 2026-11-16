@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
-import { SectionPending } from "@/components/common/phase-placeholder";
+import { LoadingState } from "@/components/common/states";
+import { LightCurvesPage } from "@/components/pages/light-curves";
 
 export const metadata: Metadata = { title: "Light Curve Explorer" };
 
 export default function Page() {
-  return <SectionPending title="Light Curve Explorer" description="Inspect Kepler photometry for any dataset signal." />;
+  return (
+    <Suspense fallback={<LoadingState label="Loading explorer" rows={4} />}>
+      <LightCurvesPage />
+    </Suspense>
+  );
 }

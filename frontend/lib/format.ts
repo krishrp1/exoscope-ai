@@ -40,6 +40,7 @@ export const SPLIT_LABEL: Record<string, string> = {
 export const STAGE_LABEL: Record<string, string> = {
   loading: "Loading",
   validating: "Validating",
+  ephemeris_search: "Estimating period (BLS)",
   normalizing: "Normalizing",
   extracting_features: "Extracting features",
   cnn_inference: "CNN inference",

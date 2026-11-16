@@ -287,6 +287,7 @@ export interface UploadReport {
   time_column: string | null;
   flux_column: string;
   n_rows: number;
+  has_header: boolean;
   n_rows_with_missing_values: number;
   missing_value_handling: string;
   time_axis: string;
@@ -300,6 +301,7 @@ export interface Prediction {
   ephemeris: Ephemeris;
   processed: ProcessedViews;
   signal: SignalStats;
+  warnings: string[];
   disclaimer: string;
   explanation?: Explanation;
   processing: Processing;
@@ -335,6 +337,7 @@ export interface UploadInspection {
   columns: { name: string; n_numeric: number; n_missing: number; is_numeric: boolean }[];
   suggested_mapping: { time: string | null; flux: string | null };
   preview: string[][];
+  has_header: boolean;
   help: string;
 }
 

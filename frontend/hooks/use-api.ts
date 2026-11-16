@@ -11,66 +11,66 @@ export interface AsyncState<T> {
   refetch: () => void;
 }
 
-/** Runs `fetcher` on mount and whenever `deps` change. Keeps the previous data visible while refetching. */
-export function useApi<T>(fetcher: () => Promise<T>, deps: unknown[] = [], enabled = true): AsyncState<T> {
-  const [data, setData] = useState<T | null>(null);
-  const [error, setError] = useState<ApiError | null>(null);
-  const [loading, setLoading] = useState(enabled);
+type Primitive = string | number | boolean | null | undefined;
+
+function toApiError(err: unknown): ApiError {
+  return err instanceof ApiError ? err : new ApiError(0, "unknown_error", String(err));
+}
+
+/**
+ * Runs `fetcher` on mount and whenever `deps` change. Keeps the previous data visible while refetching.
+ * `loading` is derived: it is true until the request for the current deps has settled.
+ */
+export function useApi<T>(fetcher: () => Promise<T>, deps: Primitive[] = [], enabled = true): AsyncState<T> {
   const [tick, setTick] = useState(0);
+  const runKey = `${tick}|${JSON.stringify(deps)}`;
+  const [state, setState] = useState<{ data: T | null; error: ApiError | null; settledKey: string | null }>({
+    data: null, error: null, settledKey: null,
+  });
   const fetcherRef = useRef(fetcher);
   useEffect(() => {
     fetcherRef.current = fetcher;
   });
 
   useEffect(() => {
-    if (!enabled) {
-      setLoading(false);
-      return;
-    }
+    if (!enabled) return;
     let cancelled = false;
-    setLoading(true);
     fetcherRef.current()
-      .then((result) => {
-        if (cancelled) return;
-        setData(result);
-        setError(null);
+      .then((data) => {
+        if (!cancelled) setState({ data, error: null, settledKey: runKey });
       })
       .catch((err: unknown) => {
-        if (cancelled) return;
-        setError(err instanceof ApiError ? err : new ApiError(0, "unknown_error", String(err)));
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setState((prev) => ({ data: prev.data, error: toApiError(err), settledKey: runKey }));
       });
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tick, enabled, ...deps]);
+  }, [runKey, enabled]);
 
   const refetch = useCallback(() => setTick((t) => t + 1), []);
-  return { data, error, loading, refetch };
+  return { data: state.data, error: state.error, loading: enabled && state.settledKey !== runKey, refetch };
 }
 
 /** Wraps an async action (a button press) with loading and error state. */
 export function useAction<A extends unknown[], T>(action: (...args: A) => Promise<T>) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
-  const run = useCallback(
-    async (...args: A): Promise<T | null> => {
-      setLoading(true);
-      setError(null);
-      try {
-        return await action(...args);
-      } catch (err) {
-        setError(err instanceof ApiError ? err : new ApiError(0, "unknown_error", String(err)));
-        return null;
-      } finally {
-        setLoading(false);
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
-  return { run, loading, error, clearError: () => setError(null) };
+  const actionRef = useRef(action);
+  useEffect(() => {
+    actionRef.current = action;
+  });
+  const run = useCallback(async (...args: A): Promise<T | null> => {
+    setLoading(true);
+    setError(null);
+    try {
+      return await actionRef.current(...args);
+    } catch (err) {
+      setError(toApiError(err));
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  const clearError = useCallback(() => setError(null), []);
+  return { run, loading, error, clearError };
 }

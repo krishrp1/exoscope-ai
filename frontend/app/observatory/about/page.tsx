@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
-import { SectionPending } from "@/components/common/phase-placeholder";
+import { AboutPage } from "@/components/pages/about";
 
 export const metadata: Metadata = { title: "About & Methodology" };
 
 export default function Page() {
-  return <SectionPending title="About & Methodology" description="How the system works, and its limits." />;
+  return <AboutPage />;
 }
