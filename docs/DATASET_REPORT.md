@@ -71,7 +71,7 @@ The three columns the pipeline needs (`koi_period`, `koi_time0bk`, `koi_duration
 
 ### Class imbalance
 
-Among the 7,197 labelled rows the ratio is 4,840 : 2,357 = 2.05 : 1, so 32.7% are positive. This is moderate imbalance. 2,357 positives is enough to train a small CNN (about 34,000 parameters) without resampling tricks. Mitigations used: inverse-frequency class weights computed from the training split, and reporting precision, recall and PR-AUC for the positive class, not accuracy alone.
+Among the 7,197 labelled rows the ratio is 4,840 : 2,357 = 2.05 : 1, so 32.7% are positive. This is moderate imbalance. 2,357 positives is enough to train a small CNN (44,642 parameters) without resampling tricks. Mitigations used: inverse-frequency class weights computed from the training split, and reporting precision, recall and PR-AUC for the positive class, not accuracy alone.
 
 ## 3. Light curves: additional genuine observations
 
