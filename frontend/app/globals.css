@@ -111,10 +111,13 @@
       radial-gradient(50rem 36rem at -10% 20%, rgb(56 189 248 / 10%), transparent 60%);
     background-attachment: fixed;
   }
-  :focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
-  }
+}
+
+/* Unlayered so it wins over component utilities: one clear focus indicator everywhere,
+   in a colour that also shows on cyan buttons. */
+:focus-visible {
+  outline: 2px solid #f8fafc !important;
+  outline-offset: 2px;
 }
 
 @layer components {

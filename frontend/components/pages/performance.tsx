@@ -23,6 +23,7 @@ function ConfusionMatrix({ test }: { test: SplitMetrics }) {
   const names = [["True negative", "False alarm"], ["Missed planet", "True positive"]];
   return (
     <div>
+      <div className="overflow-x-auto">
       <table className="w-full border-separate border-spacing-1.5 text-sm">
         <caption className="sr-only">Confusion matrix on the test set. Rows are the dataset label, columns are the model prediction.</caption>
         <thead>
@@ -36,9 +37,9 @@ function ConfusionMatrix({ test }: { test: SplitMetrics }) {
             <tr key={labels[i]}>
               <th scope="row" className="pr-2 text-right text-xs font-medium text-muted-foreground">Label {labels[i]}</th>
               {row.map((v, j) => (
-                <td key={j} className="rounded-lg border border-border p-3 text-center"
+                <td key={j} className="rounded-lg border border-border p-2 text-center sm:p-3"
                     style={{ background: `rgba(56,189,248,${0.06 + 0.5 * (v / max)})` }}>
-                  <span className="data block text-2xl font-semibold">{fmtInt(v)}</span>
+                  <span className="data block text-xl font-semibold sm:text-2xl">{fmtInt(v)}</span>
                   <span className="block text-xs text-muted-foreground">{names[i][j]}</span>
                 </td>
               ))}
@@ -46,6 +47,7 @@ function ConfusionMatrix({ test }: { test: SplitMetrics }) {
           ))}
         </tbody>
       </table>
+      </div>
       <p className="mt-2 text-xs text-muted-foreground">{test.confusion_matrix.layout}. {test.decision_rule}.</p>
     </div>
   );

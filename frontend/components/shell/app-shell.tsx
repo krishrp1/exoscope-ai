@@ -117,7 +117,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         Skip to content
       </a>
 
-      <aside className={cn("sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border bg-background-secondary/80 p-3 backdrop-blur transition-[width] duration-200 lg:flex",
+      <aside className={cn("sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border bg-background-secondary/80 p-3 backdrop-blur lg:flex",
                            collapsed ? "w-16" : "w-64")}>
         <Brand compact={collapsed} />
         <div className="mt-5 flex-1 overflow-y-auto">
@@ -145,7 +145,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/75 px-4 backdrop-blur sm:px-6">
-          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setDrawerOpen(true)}
+          <Button variant="ghost" size="icon" className="size-11 lg:hidden" onClick={() => setDrawerOpen(true)}
                   aria-label="Open navigation menu">
             <Menu aria-hidden="true" />
           </Button>

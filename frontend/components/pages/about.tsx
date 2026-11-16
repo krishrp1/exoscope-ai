@@ -33,7 +33,7 @@ const STACK: [string, string][] = [
 function FlowBox({ title, children, tone = "default" }: { title: string; children?: ReactNode; tone?: "default" | "primary" | "violet" }) {
   const border = { default: "border-border", primary: "border-primary/50", violet: "border-accent-violet/50" }[tone];
   return (
-    <div className={`rounded-lg border ${border} bg-background-secondary/70 px-3 py-2.5 text-center`}>
+    <div className={`min-w-0 rounded-lg border ${border} bg-background-secondary/70 px-3 py-2.5 text-center`}>
       <p className="text-sm font-medium">{title}</p>
       {children && <p className="data mt-0.5 text-xs text-muted-foreground">{children}</p>}
     </div>
@@ -42,11 +42,11 @@ function FlowBox({ title, children, tone = "default" }: { title: string; childre
 
 function Arrow({ vertical = false }: { vertical?: boolean }) {
   const Icon = vertical ? ArrowDown : ArrowRight;
-  return <Icon className={`mx-auto size-4 shrink-0 text-muted-foreground ${vertical ? "" : "max-lg:rotate-90"}`} aria-hidden="true" />;
+  return <Icon className={`mx-auto size-4 shrink-0 text-muted-foreground ${vertical ? "" : "max-2xl:rotate-90"}`} aria-hidden="true" />;
 }
 
 function Flow({ children, label }: { children: ReactNode; label: string }) {
-  return <div role="img" aria-label={label} className="flex flex-col items-stretch gap-2 lg:flex-row lg:items-center">{children}</div>;
+  return <div role="img" aria-label={label} className="flex flex-col items-stretch gap-2 2xl:flex-row 2xl:items-center">{children}</div>;
 }
 
 export function AboutPage() {
@@ -118,7 +118,7 @@ export function AboutPage() {
               {["Fit standardizer on train only", "Train: Adam, class weights, augmentation", "Pick checkpoint by validation loss", "Evaluate once on test", "Save artifacts, hot-swap model"]
                 .map((label, i, all) => (
                   <div key={label} className="contents">
-                    <div className="flex-1"><FlowBox title={label} tone={i === 3 ? "primary" : "default"} /></div>
+                    <div className="min-w-0 flex-1"><FlowBox title={label} tone={i === 3 ? "primary" : "default"} /></div>
                     {i < all.length - 1 && <Arrow />}
                   </div>
                 ))}

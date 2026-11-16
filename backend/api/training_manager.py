@@ -41,7 +41,7 @@ class TrainingManager:
         self._train_fn = train_fn
         self._epoch_seconds: list[float] = []
         self.events: list[dict] = []
-        self.status: dict = {"state": "idle", "run_id": None}
+        self.status: dict = {"state": "idle", "run_id": None, "history": {k: [] for k in HISTORY_KEYS}}
 
     # ------------------------------------------------------------ control
 

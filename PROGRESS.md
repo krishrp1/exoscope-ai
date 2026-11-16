@@ -79,3 +79,29 @@ Confusion matrix (rows true, columns predicted; FALSE POSITIVE, CONFIRMED): `[[3
 - Typed API client (`lib/api.ts`, `types/api.ts`) with one base URL from `NEXT_PUBLIC_API_BASE_URL`; `useApi`, `useAction` and `useTrainingStream` hooks.
 - Dashboard shell: collapsible sidebar, mobile drawer, live backend status pill, page transitions, shared loading / empty / error components, skip link.
 - Landing page: hero with a synchronized star, orbiting planet and brightness graph (badged as synthetic illustration), six content sections with scroll reveals, live dataset figures read from the backend.
+
+**Verification:** `docs/verification/phase-4.md`. Two medium and several low issues found and fixed.
+
+## Phase 5: Feature pages and integration (done)
+
+**Done, each against the real backend**
+- **Overview:** catalog size, light curves available, model status and last training time, test accuracy with recall and precision, class-distribution chart, dataset-health list, six test-split sample curves, recent predictions. Shows a "not trained" state without numbers when no model exists.
+- **Dataset Explorer:** search, label and split filters, sortable columns, pagination with page size, row selection, target detail with a folded preview, statistics and labels by split.
+- **Light Curve Explorer:** Plotly time vs flux with zoom, pan, scroll zoom, range select and reset; sample picker; raw and normalized toggle; shading of transits predicted by the catalog ephemeris; metadata; folded views. Deep link `?id=`.
+- **AI Detection Studio:** input A (dataset sample with preview) and input B (drag-and-drop CSV with validation, column mapping, missing-value report, optional ephemeris, format help). Six analysis stages with the backend's measured timings, plus a period-search stage when the period is estimated. Results: class, softmax score, probability bars, interactive views, signal characteristics, explanation overlay, warnings, disclaimers.
+- **Compare Signals:** two to four signals, side-by-side plots with synchronized zoom or shared axes, explanation overlays, a table of predictions, and buttons that add real test-split examples.
+- **Training Monitor:** start and safe stop, status, epoch and batch progress, learning rate, loss and accuracy charts fed by the WebSocket, event log, reconnect handling, last completed run when idle.
+- **Model Performance:** metrics, confusion matrix, ROC and PR curves, training curves, class distribution, and notes whose numbers are read from the API.
+- **About & Methodology:** eight-step pipeline, data-pipeline and workflow diagrams, architecture table read from the loaded model, attribution, inspiration, limitations, talking points.
+
+**Checked for real (Playwright against the production build)**
+- All eight pages at 1440, 1024, 768 and 390 px: no console errors, no failed requests, no horizontal overflow.
+- Dataset-sample prediction, CSV upload prediction (with and without an ephemeris), rejection of a non-CSV file and a file without numeric columns, compare with overlays, dataset search/sort/select/paginate, raw and normalized light curves.
+- A live 12-epoch training run started from the UI: start disabled while running, live charts, completion, model reload.
+
+**Bugs found while testing and fixed**
+- The Training Monitor crashed when the backend was idle (history arrays missing from the idle status).
+- Horizontal overflow on three pages at specific widths.
+- Attribution axis labels overlapped the neighbouring plot.
+
+**Process note:** the eight pages were built in one pass and then verified in two groups, not verified after every two or three pages as the plan asked.

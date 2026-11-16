@@ -20,6 +20,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
+        {/* Without JavaScript the scroll reveals never run, so show their content outright. */}
+        <noscript><style>{".reveal{opacity:1!important;transform:none!important}"}</style></noscript>
         <Starfield />
         <div className="relative z-10 flex min-h-screen flex-col">{children}</div>
       </body>

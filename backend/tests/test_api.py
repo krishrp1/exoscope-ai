@@ -387,3 +387,11 @@ def test_huge_integers_and_long_cells_do_not_crash_inspect(client):
     assert len(data["preview"][0][1]) <= 41  # long cells are truncated in the preview
     flux = next(c for c in data["columns"] if c["name"] == "flux")
     assert flux["n_missing"] == 1  # the overflowing value is not a usable number
+
+
+def test_idle_training_status_has_empty_history_lists():
+    from backend.api.training_manager import HISTORY_KEYS, TrainingManager
+
+    snapshot = TrainingManager().snapshot()
+    assert snapshot["state"] == "idle" and snapshot["is_running"] is False
+    assert snapshot["history"] == {k: [] for k in HISTORY_KEYS}

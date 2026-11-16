@@ -45,7 +45,7 @@ export function useTrainingStream(): TrainingStream {
       switch (event.type) {
         case "snapshot":
           setStatus(event.status ?? null);
-          setHistory(event.status?.history ?? EMPTY_HISTORY);
+          setHistory({ ...EMPTY_HISTORY, ...event.status?.history });
           setLog((event.events ?? []).slice(-MAX_LOG));
           setBatch(null);
           return;

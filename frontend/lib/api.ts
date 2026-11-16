@@ -21,11 +21,18 @@ export class ApiError extends Error {
   }
 }
 
+const READ_TIMEOUT_MS = 20_000;
+const WRITE_TIMEOUT_MS = 120_000; // predictions on uploads can include a period search
+
 export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
+  const timeout = init?.method === "POST" ? WRITE_TIMEOUT_MS : READ_TIMEOUT_MS;
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, init);
-  } catch {
+    response = await fetch(`${API_BASE_URL}${path}`, { ...init, signal: AbortSignal.timeout(timeout) });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "TimeoutError") {
+      throw new ApiError(0, "timeout", `The ExoScope backend did not answer within ${timeout / 1000} seconds.`);
+    }
     throw new ApiError(0, "network_error",
       `Cannot reach the ExoScope backend at ${API_BASE_URL}. Is it running?`);
   }

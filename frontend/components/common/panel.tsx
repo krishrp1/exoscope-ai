@@ -8,7 +8,7 @@ export function Panel({ title, description, actions, children, className, bodyCl
   bodyClassName?: string; as?: "section" | "div" | "article";
 }) {
   return (
-    <Tag className={cn("glass rounded-xl", className)}>
+    <Tag className={cn("glass min-w-0 rounded-xl", className)}>
       {(title || actions) && (
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border px-4 py-3 sm:px-5">
           <div className="min-w-0">

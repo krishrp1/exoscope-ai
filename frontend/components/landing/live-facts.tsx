@@ -29,8 +29,8 @@ export function LiveDatasetFacts() {
     <div>
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {facts.map(([value, label]) => (
-          <div key={label} className="glass rounded-xl px-4 py-3">
-            <dd className="data text-xl font-semibold text-primary sm:text-2xl">{value}</dd>
+          <div key={label} className="glass min-w-0 rounded-xl px-3 py-3 sm:px-4">
+            <dd className="data text-lg font-semibold [overflow-wrap:anywhere] text-primary xl:text-xl">{value}</dd>
             <dt className="mt-1 text-xs text-muted-foreground">{label}</dt>
           </div>
         ))}

@@ -17,7 +17,8 @@ const DEPTH = (PLANET_R / STAR.r) ** 2; // area ratio of the two discs
 /** Planet centre for an orbital phase in [0, 1). Phase 0.5 is mid-transit (planet in front). */
 function planetAt(phase: number) {
   const a = 2 * Math.PI * (phase - 0.25);
-  return { x: STAR.x + ORBIT.rx * Math.cos(a), y: STAR.y + ORBIT.ry * Math.sin(a) + 4, inFront: Math.sin(a) > 0 };
+  // Minus: the planet crosses left to right, the same direction the graph marker moves.
+  return { x: STAR.x - ORBIT.rx * Math.cos(a), y: STAR.y + ORBIT.ry * Math.sin(a) + 4, inFront: Math.sin(a) > 0 };
 }
 
 /** Relative brightness: the star dims by the area the planet covers while it is in front. */

@@ -45,21 +45,24 @@ function Card({ icon: Icon, title, children }: { icon: typeof Orbit; title: stri
 export default function LandingPage() {
   return (
     <>
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground">
+        Skip to content
+      </a>
       <header className="sticky top-0 z-40 border-b border-border bg-background/70 backdrop-blur">
         <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
           <Link href="/" className="flex items-center gap-2 font-semibold tracking-wide">
             <Telescope className="size-5 text-primary" aria-hidden="true" /> ExoScope AI
           </Link>
-          <nav aria-label="Landing sections" className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-            <a href="#transit" className="hover:text-foreground">Transit method</a>
-            <a href="#cnn" className="hover:text-foreground">The model</a>
-            <a href="#dataset" className="hover:text-foreground">Dataset</a>
+          <nav aria-label="Landing sections" className="hidden items-center gap-6 text-sm text-muted-foreground sm:flex">
+            <Link href="#transit" className="hover:text-foreground">Transit method</Link>
+            <Link href="#cnn" className="hover:text-foreground">The model</Link>
+            <Link href="#dataset" className="hover:text-foreground">Dataset</Link>
           </nav>
-          <Link href="/observatory" className={buttonVariants({ size: "sm" })}>Open observatory</Link>
+          <Link href="/observatory" className={buttonVariants({ size: "sm" })}>Open<span className="max-[380px]:sr-only">&nbsp;observatory</span></Link>
         </div>
       </header>
 
-      <main id="main" className="flex-1">
+      <main id="main" tabIndex={-1} className="flex-1 outline-none">
         <section aria-labelledby="hero-title" className="mx-auto grid w-full max-w-6xl items-center gap-10 px-5 pt-14 pb-10 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:pt-24">
           <div>
             <p className="data inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
@@ -76,9 +79,9 @@ export default function LandingPage() {
               <Link href="/observatory" className={cn(buttonVariants({ size: "lg" }), "glow h-11 px-5 text-base")}>
                 Enter the Observatory <ArrowRight aria-hidden="true" />
               </Link>
-              <a href="#science" className={cn(buttonVariants({ size: "lg", variant: "outline" }), "h-11 px-5 text-base")}>
+              <Link href="#science" className={cn(buttonVariants({ size: "lg", variant: "outline" }), "h-11 px-5 text-base")}>
                 <BookOpen aria-hidden="true" /> Explore the Science
-              </a>
+              </Link>
             </div>
             <p className="mt-6 max-w-xl text-xs leading-relaxed text-muted-foreground">
               A model score is not a discovery. Confirming a planet takes follow-up observation and vetting by astronomers.
