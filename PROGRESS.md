@@ -48,3 +48,34 @@ Confusion matrix (rows true, columns predicted; FALSE POSITIVE, CONFIRMED): `[[3
 - The model depends on a correct ephemeris. Performance with estimated (BLS) ephemerides was not measured.
 
 **Decisions:** D10 to D16.
+
+## Phase 3: FastAPI backend (done)
+
+**Done**
+- Endpoints: health, dataset stats, sample list (search, filter, sort, pagination), sample detail (raw and normalized light curve, transit times, processed views), model status, metrics and plots, predict (dataset sample, inline arrays, CSV upload, upload inspection, batch), recent predictions, training start/stop/status/history, and `WS /ws/training`.
+- Model loaded once at startup; a "not trained" state instead of an error when no model exists.
+- CSV uploads: 10 MB limit, extension and content-type checks, text-only parsing, column mapping with auto-detection, missing-value handling, structured rejections.
+- Training manager: one job at a time (409 on duplicates), safe stop, real events over WebSocket, hot swap of the new model after a completed run.
+- Structured JSON errors, CORS and limits from environment (`.env.example`), logging.
+- 24 API tests on a synthetic fixture dataset; 62 backend tests in total.
+
+**Checked for real**
+- Every endpoint with curl against the running server.
+- A live 6-epoch run streamed through `backend/scripts/ws_training_client.py`: 60 batch events, 6 epoch events, 3 checkpoints, completion, model reload.
+- Exporting a real light curve to CSV and uploading it with the catalog ephemeris gives the same score as the dataset-sample path (0.478 for K00002.01 both ways).
+
+**Decisions:** D17 to D19.
+
+**Open issues**
+- Any completed training run started from the API replaces the served model, including short runs. The UI warns about this.
+- Recent predictions are kept in memory only and reset on restart.
+- For uploads without an ephemeris, the Box Least Squares estimate can land on a harmonic of the true period; the result then differs from the catalog-ephemeris result (seen on K00002.01: 0.08 vs 0.48 for CONFIRMED).
+
+## Phase 4: Frontend core and landing page (done)
+
+**Done**
+- Next.js 16 (App Router), TypeScript, Tailwind 4, shadcn/ui (Base UI), Framer Motion, Plotly, Recharts, Lucide.
+- Dark observatory theme, Geist fonts, canvas starfield (static under reduced motion).
+- Typed API client (`lib/api.ts`, `types/api.ts`) with one base URL from `NEXT_PUBLIC_API_BASE_URL`; `useApi`, `useAction` and `useTrainingStream` hooks.
+- Dashboard shell: collapsible sidebar, mobile drawer, live backend status pill, page transitions, shared loading / empty / error components, skip link.
+- Landing page: hero with a synchronized star, orbiting planet and brightness graph (badged as synthetic illustration), six content sections with scroll reveals, live dataset figures read from the backend.

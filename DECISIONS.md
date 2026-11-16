@@ -77,3 +77,27 @@ Decisions taken without the owner present, with the alternatives considered and 
 
 ### D16. Hyperparameters were not searched
 - **Decision.** One configuration (Adam 1e-3, batch 64, dropout 0.3, early stopping on validation loss with patience 10) was trained once and reported as is.
+
+## Phase 3: Backend
+
+### D17. WebSocket for the training stream
+- **Alternatives.** Server-Sent Events: simpler, one-way.
+- **Why.** Either satisfies the requirement. WebSocket was chosen because a snapshot-on-connect plus heartbeats makes reconnection simple. Batch events are sent every 5 batches to bound traffic.
+
+### D18. Uploads without an ephemeris use Box Least Squares
+- **Decision.** If the user gives no period, epoch and duration, the backend estimates them with `astropy` BLS and marks the ephemeris as "estimated" in the response and the UI.
+- **Alternatives.** Reject uploads without an ephemeris: safer but makes the upload feature much less usable.
+- **Why.** It keeps one preprocessing path. The reliability cost is disclosed where the result is shown.
+
+### D19. API tests run on a synthetic fixture
+- **Why.** Tests must run on a fresh clone without 1.5 GB of light curves. The fixture is generated in the test, labelled synthetic, written to a temporary directory, and never touches the shipped model.
+
+## Phase 4: Frontend
+
+### D20. Client-side data fetching
+- **Decision.** Pages are client components that call the FastAPI backend from the browser.
+- **Alternatives.** Server components fetching at request time.
+- **Why.** The data is live (training state, model hot swap), and the backend is a separate local service. Static shells plus client fetches keep the build independent of a running backend.
+
+### D21. Native `<select>` elements
+- **Why.** Keyboard and screen-reader behaviour is built in and predictable on mobile.
