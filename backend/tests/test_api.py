@@ -290,3 +290,90 @@ def test_not_trained_state(client, monkeypatch):
 def test_unknown_route_is_structured_404(client):
     r = client.get("/api/nope")
     assert r.status_code == 404 and r.json()["error"]["code"] == "not_found"
+
+
+# ---- regressions found by the Phase 3 verifier ----
+
+@pytest.mark.parametrize("payload", [
+    {"flux": []},
+    {"flux": [None, None, None]},
+    {"flux": [None] * 400},
+    {"flux": [], "period": 2, "t0": 1, "duration_hours": 2},
+    {"flux": [0.0] * 5000},
+    {"flux": [1.0 + 0.001 * (i % 7) for i in range(3000)], "time": [None] * 3000},
+    {"flux": [1.0 + 0.001 * (i % 7) for i in range(3000)], "time": [None] * 3000, "period": 2, "t0": 1, "duration_hours": 2},
+    {"flux": [1.0 + 0.001 * (i % 7) for i in range(3000)], "time": [i * 1e300 for i in range(3000)]},
+    {"flux": [1.0] * 5000},
+    {"flux": [1e308] * 5000},
+])
+def test_degenerate_inline_input_is_rejected_not_crashed(client, payload):
+    r = client.post("/api/predict", json=payload)
+    assert r.status_code == 422, r.text
+    assert r.json()["error"]["code"] == "cannot_process"
+
+
+def test_single_long_line_upload_is_rejected_quickly(client):
+    started = time.time()
+    r = client.post("/api/predict/upload/inspect", files={"file": ("nines.csv", b"9" * 2_000_000, "text/csv")})
+    assert r.status_code == 400 and r.json()["error"]["code"] == "csv_parse_error"
+    assert time.time() - started < 5
+
+
+def test_single_column_csv_with_and_without_header(client):
+    values = "\n".join(f"{1000 + 0.37 * i:.2f}" for i in range(3000))
+    with_header = client.post("/api/predict/upload/inspect",
+                              files={"file": ("one.csv", f"flux\n{values}".encode(), "text/csv")}).json()
+    assert [c["name"] for c in with_header["columns"]] == ["flux"]
+    assert with_header["n_rows"] == 3000 and with_header["suggested_mapping"]["flux"] == "flux"
+    headerless = client.post("/api/predict/upload/inspect",
+                             files={"file": ("one.csv", values.encode(), "text/csv")}).json()
+    assert headerless["has_header"] is False and headerless["n_rows"] == 3000  # first row is data, not a header
+    assert [c["name"] for c in headerless["columns"]] == ["column_1"]
+
+
+@pytest.mark.parametrize("sep", [",", "\t", ";", " "])
+def test_upload_delimiters(client, sep):
+    t, f = make_synthetic_curve(seed=21, n_days=60.0)
+    body = "\n".join([f"time{sep}flux"] + [f"{a:.6f}{sep}{b:.4f}" for a, b in zip(t, f)]).encode()
+    r = client.post("/api/predict/upload", files={"file": ("lc.txt", body, "text/plain")},
+                    data={"period": "3.2", "t0": "1.1", "duration_hours": "3.0"})
+    assert r.status_code == 200, r.text
+    assert r.json()["upload"]["time_column"] == "time" and r.json()["upload"]["n_rows"] == len(t)
+
+
+def test_flat_signal_with_ephemeris_carries_a_warning(client):
+    rng = np.random.default_rng(0)
+    flux = (1000 + rng.normal(0, 0.0, 3000)).tolist()
+    r = client.post("/api/predict", json={"flux": flux, "period": 3.2, "t0": 1.1, "duration_hours": 3.0, "explain": False})
+    assert r.status_code == 200
+    assert any("flat" in w for w in r.json()["warnings"])
+
+
+def test_estimated_ephemeris_has_its_own_timed_stage(client):
+    t, f = make_synthetic_curve(period=4.7, depth=0.006, n_days=90.0, seed=11)
+    body = client.post("/api/predict", json={"time": t.tolist(), "flux": f.tolist(), "explain": False}).json()
+    assert body["processing"]["stage_order"] == ["loading", "validating", "ephemeris_search", "normalizing",
+                                                 "extracting_features", "cnn_inference", "preparing_results"]
+    assert body["processing"]["stages_ms"]["ephemeris_search"] > body["processing"]["stages_ms"]["validating"]
+
+
+def test_unexpected_error_is_json_500_with_cors_headers(client, monkeypatch):
+    from backend.api import routes_dataset
+
+    def boom():
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(routes_dataset.ds, "load_manifest", boom)
+    r = client.get("/api/dataset/stats", headers={"origin": "http://localhost:3000"})
+    assert r.status_code == 500 and r.json()["error"]["code"] == "internal_error"
+    assert r.headers["access-control-allow-origin"] == "http://localhost:3000"
+
+
+def test_websocket_rejects_disallowed_origin(client):
+    from starlette.websockets import WebSocketDisconnect
+
+    with pytest.raises(WebSocketDisconnect):
+        with client.websocket_connect("/ws/training", headers={"origin": "http://evil.example"}) as ws:
+            ws.receive_json()
+    with client.websocket_connect("/ws/training", headers={"origin": "http://localhost:3000"}) as ws:
+        assert ws.receive_json()["type"] == "snapshot"

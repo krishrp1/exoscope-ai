@@ -35,8 +35,7 @@ def validate_upload_meta(filename: str | None, content_type: str | None, size: i
     if size == 0:
         raise ApiError(400, "empty_file", "The uploaded file is empty.", {"help": FORMAT_HELP})
     if size > max_bytes:
-        raise ApiError(413, "file_too_large",
-                       f"The file is {size / 1e6:.1f} MB; the limit is {max_bytes / 1e6:.0f} MB.")
+        raise ApiError(413, "file_too_large", f"The file is larger than the {max_bytes / 1e6:.0f} MB limit.")
 
 
 def parse_csv(content: bytes, max_rows: int) -> pd.DataFrame:
@@ -49,17 +48,57 @@ def parse_csv(content: bytes, max_rows: int) -> pd.DataFrame:
             text = content.decode("latin-1")
         except UnicodeDecodeError:
             raise ApiError(400, "not_text", "The file is not valid text.", {"help": FORMAT_HELP})
+    first = next((ln for ln in text.splitlines() if ln.strip() and not ln.lstrip().startswith("#")), "")
+    if len(first) > MAX_HEADER_CHARS:
+        raise ApiError(400, "csv_parse_error",
+                       "The first row is too long to be a header or a data row. Is the file line-delimited?",
+                       {"help": FORMAT_HELP})
+    sep = detect_delimiter(first)
+    has_header = not _all_numeric(first, sep)
     try:
-        df = pd.read_csv(io.StringIO(text), sep=None, engine="python", comment="#", nrows=max_rows + 1,
-                         skip_blank_lines=True, on_bad_lines="error")
+        df = pd.read_csv(io.StringIO(text), sep=sep, engine="c", comment="#", nrows=max_rows + 1,
+                         skip_blank_lines=True, on_bad_lines="error", header=0 if has_header else None,
+                         skipinitialspace=True)
     except Exception as exc:
         raise ApiError(400, "csv_parse_error", f"Could not parse the file as CSV: {exc}", {"help": FORMAT_HELP})
     if len(df) > max_rows:
         raise ApiError(413, "too_many_rows", f"The file has more than {max_rows:,} rows.")
     if df.shape[1] == 0 or len(df) == 0:
         raise ApiError(400, "empty_table", "The file has no data rows.", {"help": FORMAT_HELP})
-    df.columns = [str(c).strip() for c in df.columns]
+    if df.shape[1] > MAX_COLUMNS:
+        raise ApiError(400, "too_many_columns", f"The file has more than {MAX_COLUMNS} columns.", {"help": FORMAT_HELP})
+    df.columns = [str(c).strip() for c in df.columns] if has_header else [f"column_{i + 1}" for i in range(df.shape[1])]
+    df.attrs["has_header"] = has_header
     return df
+
+
+MAX_HEADER_CHARS = 20_000
+MAX_COLUMNS = 200
+
+
+def detect_delimiter(first_line: str) -> str:
+    """Pick the delimiter from the first row: comma, tab, semicolon, else whitespace, else one column."""
+    counts = {d: first_line.count(d) for d in (",", "\t", ";")}
+    best = max(counts, key=counts.get)
+    if counts[best] > 0:
+        return best
+    if len(first_line.split()) > 1:
+        return r"\s+"
+    return ","  # a single column
+
+
+def _all_numeric(first_line: str, sep: str) -> bool:
+    """True if every field of the first row is a number, i.e. the file has no header row."""
+    fields = first_line.split() if sep == r"\s+" else first_line.split(sep)
+    fields = [f.strip() for f in fields if f.strip()]
+    if not fields:
+        return False
+    try:
+        for f in fields:
+            float(f)
+    except ValueError:
+        return False
+    return True
 
 
 def numeric_columns(df: pd.DataFrame) -> dict[str, dict]:
@@ -94,6 +133,7 @@ def inspect(df: pd.DataFrame) -> dict:
         "columns": [{"name": c, **info[c]} for c in df.columns],
         "suggested_mapping": guess_columns(df, info),
         "preview": df.head(5).astype(object).where(df.head(5).notna(), None).astype(str).values.tolist(),
+        "has_header": bool(df.attrs.get("has_header", True)),
         "help": FORMAT_HELP,
     }
 
@@ -123,6 +163,7 @@ def extract_series(df: pd.DataFrame, time_column: str | None, flux_column: str |
     time = pd.to_numeric(df[time_column], errors="coerce").to_numpy(dtype=np.float64) if time_column else None
     missing = ~np.isfinite(flux) if time is None else ~(np.isfinite(flux) & np.isfinite(time))
     report = {"time_column": time_column, "flux_column": flux_column, "n_rows": int(len(df)),
+              "has_header": bool(df.attrs.get("has_header", True)),
               "n_rows_with_missing_values": int(missing.sum()),
               "missing_value_handling": "rows with a missing or non-numeric time/flux value are dropped",
               "time_axis": "from file" if time_column else "assumed Kepler long cadence (29.4 min) from row order"}

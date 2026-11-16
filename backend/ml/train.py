@@ -153,6 +153,7 @@ def train_model(params: TrainParams | None = None, event_cb: EventCallback | Non
         def __init__(self):
             super().__init__()
             self.best_val_loss = np.inf
+            self.epoch = 0
             self.epoch_started = 0.0
             self.stopped_by_user = False
 
@@ -163,6 +164,7 @@ def train_model(params: TrainParams | None = None, event_cb: EventCallback | Non
                  params=params.to_dict())
 
         def on_epoch_begin(self, epoch, logs=None):
+            self.epoch = epoch + 1
             self.epoch_started = time.time()
             emit("epoch_begin", epoch=epoch + 1, epochs=params.epochs)
 
@@ -172,7 +174,7 @@ def train_model(params: TrainParams | None = None, event_cb: EventCallback | Non
                 self.model.stop_training = True
             if (batch + 1) % params.batch_event_every == 0 or batch + 1 == steps_per_epoch:
                 logs = logs or {}
-                emit("batch", batch=batch + 1, steps_per_epoch=steps_per_epoch,
+                emit("batch", epoch=self.epoch, batch=batch + 1, steps_per_epoch=steps_per_epoch,
                      loss=float(logs.get("loss", np.nan)), accuracy=float(logs.get("accuracy", np.nan)))
 
         def on_epoch_end(self, epoch, logs=None):
@@ -189,88 +191,91 @@ def train_model(params: TrainParams | None = None, event_cb: EventCallback | Non
                 self.best_val_loss = float(val_loss)
                 emit("checkpoint_saved", epoch=epoch + 1, val_loss=float(val_loss))
 
-    stream = StreamCallback()
-    callbacks = [
-        keras.callbacks.ModelCheckpoint(str(checkpoint_path), monitor="val_loss", save_best_only=True),
-        keras.callbacks.EarlyStopping(monitor="val_loss", patience=params.early_stopping_patience,
-                                      restore_best_weights=True),
-        keras.callbacks.ReduceLROnPlateau(monitor="val_loss", factor=params.lr_factor,
-                                          patience=params.lr_patience, min_lr=params.min_lr),
-        stream,  # after ReduceLROnPlateau so the reported learning rate is the updated one
-    ]
-    # Learning rate per epoch is recorded by ReduceLROnPlateau into history as "learning_rate".
-    fit = model.fit(TrainingData(), validation_data=(x_val, y_val), epochs=params.epochs,
-                    callbacks=callbacks, verbose=0)
-    history = {k: [float(v) for v in vals] for k, vals in fit.history.items()}
-    epochs_run = len(history.get("loss", []))
+    try:
+        stream = StreamCallback()
+        callbacks = [
+            keras.callbacks.ModelCheckpoint(str(checkpoint_path), monitor="val_loss", save_best_only=True),
+            keras.callbacks.EarlyStopping(monitor="val_loss", patience=params.early_stopping_patience,
+                                          restore_best_weights=True),
+            keras.callbacks.ReduceLROnPlateau(monitor="val_loss", factor=params.lr_factor,
+                                              patience=params.lr_patience, min_lr=params.min_lr),
+            stream,  # after ReduceLROnPlateau so the reported learning rate is the updated one
+        ]
+        # Learning rate per epoch is recorded by ReduceLROnPlateau into history as "learning_rate".
+        fit = model.fit(TrainingData(), validation_data=(x_val, y_val), epochs=params.epochs,
+                        callbacks=callbacks, verbose=0)
+        history = {k: [float(v) for v in vals] for k, vals in fit.history.items()}
+        epochs_run = len(history.get("loss", []))
 
-    if stream.stopped_by_user:
+        if stream.stopped_by_user:
+            shutil.rmtree(run_dir, ignore_errors=True)
+            emit("stopped", epochs_completed=epochs_run, message="stopped by user; the saved model was not replaced")
+            return {"status": "stopped", "epochs_completed": epochs_run, "history": history,
+                    "duration_seconds": round(time.time() - started, 2)}
+
+        emit("status", message="evaluating on the held-out test set")
+        best = keras.models.load_model(checkpoint_path)
+        val_metrics = compute_metrics(y_val, best.predict(x_val, verbose=0), config.CLASS_NAMES)
+        test_probs = best.predict(x_test, verbose=0)
+        test_metrics = compute_metrics(y_test, test_probs, config.CLASS_NAMES)
+        best_epoch = int(np.argmin(history["val_loss"])) + 1
+        finished_at = _now()
+
+        def split_counts(m: np.ndarray) -> dict:
+            return {"n_samples": int(m.sum()), "n_targets": int(len(np.unique(kep[m]))),
+                    **{config.CLASS_NAMES[i]: int((y[m] == i).sum()) for i in range(len(config.CLASS_NAMES))}}
+
+        metrics = {
+            "trained_at": finished_at,
+            "duration_seconds": round(time.time() - started, 2),
+            "epochs_run": epochs_run,
+            "best_epoch": best_epoch,
+            "early_stopped": epochs_run < params.epochs,
+            "splits": {"train": split_counts(train_m), "val": split_counts(val_m), "test": split_counts(test_m)},
+            "class_weights": {config.CLASS_NAMES[k]: v for k, v in class_weights.items()},
+            "test": test_metrics,
+            "validation": {k: v for k, v in val_metrics.items() if k not in ("roc_curve", "pr_curve")},
+            "provenance": {"labels": config.PROVENANCE_KAGGLE, "light_curves": config.PROVENANCE_MAST},
+        }
+        plots = save_plots(history, test_metrics, run_dir / "plots")
+
+        def dump(name: str, obj) -> None:
+            (run_dir / name).write_text(json.dumps(obj, indent=2))
+
+        dump("metrics.json", metrics)
+        dump("training_history.json", {"history": history, "epochs_run": epochs_run, "best_epoch": best_epoch,
+                                       "params": params.to_dict(), "trained_at": finished_at})
+        dump("model_config.json", {**describe_model(best), "train_params": params.to_dict(),
+                                   "class_names": config.CLASS_NAMES, "plots": plots})
+        dump("preprocessing_config.json", {"preprocess": pre_cfg.to_dict(), "standardizer": standardizer.to_dict(),
+                                           "standardizer_fitted_on": "training split only"})
+        dump("label_mapping.json", {"index_to_class": {str(i): n for i, n in enumerate(config.CLASS_NAMES)},
+                                    "source_column": config.LABEL_COLUMN, "positive_class": config.POSITIVE_CLASS,
+                                    "excluded": {config.UNLABELED_CLASS: "unresolved disposition; not used for training or evaluation"}})
+        import pandas as pd
+        pd.DataFrame({"kepoi_name": data["kepoi_name"][test_m], "kepid": kep[test_m], "y_true": y_test,
+                      "prob_false_positive": test_probs[:, 0], "prob_confirmed": test_probs[:, 1]}
+                     ).to_csv(run_dir / "test_predictions.csv", index=False)
+
+        # Promote: the model file first, then the artifacts that describe it.
+        models_dir.mkdir(parents=True, exist_ok=True)
+        artifacts_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(checkpoint_path, models_dir / "model.keras.tmp")
+        (models_dir / "model.keras.tmp").replace(models_dir / "model.keras")
+        for name in ("model_config.json", "preprocessing_config.json", "label_mapping.json"):
+            shutil.copy2(run_dir / name, models_dir / name)
+        for name in ("metrics.json", "training_history.json", "test_predictions.csv"):
+            shutil.copy2(run_dir / name, artifacts_dir / name)
+        shutil.rmtree(artifacts_dir / "plots", ignore_errors=True)
+        shutil.copytree(run_dir / "plots", artifacts_dir / "plots")
         shutil.rmtree(run_dir, ignore_errors=True)
-        emit("stopped", epochs_completed=epochs_run, message="stopped by user; the saved model was not replaced")
-        return {"status": "stopped", "epochs_completed": epochs_run, "history": history,
-                "duration_seconds": round(time.time() - started, 2)}
 
-    emit("status", message="evaluating on the held-out test set")
-    best = keras.models.load_model(checkpoint_path)
-    val_metrics = compute_metrics(y_val, best.predict(x_val, verbose=0), config.CLASS_NAMES)
-    test_probs = best.predict(x_test, verbose=0)
-    test_metrics = compute_metrics(y_test, test_probs, config.CLASS_NAMES)
-    best_epoch = int(np.argmin(history["val_loss"])) + 1
-    finished_at = _now()
-
-    def split_counts(m: np.ndarray) -> dict:
-        return {"n_samples": int(m.sum()), "n_targets": int(len(np.unique(kep[m]))),
-                **{config.CLASS_NAMES[i]: int((y[m] == i).sum()) for i in range(len(config.CLASS_NAMES))}}
-
-    metrics = {
-        "trained_at": finished_at,
-        "duration_seconds": round(time.time() - started, 2),
-        "epochs_run": epochs_run,
-        "best_epoch": best_epoch,
-        "early_stopped": epochs_run < params.epochs,
-        "splits": {"train": split_counts(train_m), "val": split_counts(val_m), "test": split_counts(test_m)},
-        "class_weights": {config.CLASS_NAMES[k]: v for k, v in class_weights.items()},
-        "test": test_metrics,
-        "validation": {k: v for k, v in val_metrics.items() if k not in ("roc_curve", "pr_curve")},
-        "provenance": {"labels": config.PROVENANCE_KAGGLE, "light_curves": config.PROVENANCE_MAST},
-    }
-    plots = save_plots(history, test_metrics, run_dir / "plots")
-
-    def dump(name: str, obj) -> None:
-        (run_dir / name).write_text(json.dumps(obj, indent=2))
-
-    dump("metrics.json", metrics)
-    dump("training_history.json", {"history": history, "epochs_run": epochs_run, "best_epoch": best_epoch,
-                                   "params": params.to_dict(), "trained_at": finished_at})
-    dump("model_config.json", {**describe_model(best), "train_params": params.to_dict(),
-                               "class_names": config.CLASS_NAMES, "plots": plots})
-    dump("preprocessing_config.json", {"preprocess": pre_cfg.to_dict(), "standardizer": standardizer.to_dict(),
-                                       "standardizer_fitted_on": "training split only"})
-    dump("label_mapping.json", {"index_to_class": {str(i): n for i, n in enumerate(config.CLASS_NAMES)},
-                                "source_column": config.LABEL_COLUMN, "positive_class": config.POSITIVE_CLASS,
-                                "excluded": {config.UNLABELED_CLASS: "unresolved disposition; not used for training or evaluation"}})
-    import pandas as pd
-    pd.DataFrame({"kepoi_name": data["kepoi_name"][test_m], "kepid": kep[test_m], "y_true": y_test,
-                  "prob_false_positive": test_probs[:, 0], "prob_confirmed": test_probs[:, 1]}
-                 ).to_csv(run_dir / "test_predictions.csv", index=False)
-
-    # Promote: the model file first, then the artifacts that describe it.
-    models_dir.mkdir(parents=True, exist_ok=True)
-    artifacts_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(checkpoint_path, models_dir / "model.keras.tmp")
-    (models_dir / "model.keras.tmp").replace(models_dir / "model.keras")
-    for name in ("model_config.json", "preprocessing_config.json", "label_mapping.json"):
-        shutil.copy2(run_dir / name, models_dir / name)
-    for name in ("metrics.json", "training_history.json", "test_predictions.csv"):
-        shutil.copy2(run_dir / name, artifacts_dir / name)
-    shutil.rmtree(artifacts_dir / "plots", ignore_errors=True)
-    shutil.copytree(run_dir / "plots", artifacts_dir / "plots")
-    shutil.rmtree(run_dir, ignore_errors=True)
-
-    emit("completed", epochs_run=epochs_run, best_epoch=best_epoch,
-         test={k: test_metrics[k] for k in ("accuracy", "precision", "recall", "f1", "roc_auc", "pr_auc")})
-    return {"status": "completed", "epochs_run": epochs_run, "best_epoch": best_epoch, "history": history,
-            "metrics": metrics, "duration_seconds": metrics["duration_seconds"]}
+        emit("completed", epochs_run=epochs_run, best_epoch=best_epoch,
+             test={k: test_metrics[k] for k in ("accuracy", "precision", "recall", "f1", "roc_auc", "pr_auc")})
+        return {"status": "completed", "epochs_run": epochs_run, "best_epoch": best_epoch, "history": history,
+                "metrics": metrics, "duration_seconds": metrics["duration_seconds"]}
+    finally:
+        shutil.rmtree(run_dir, ignore_errors=True)  # also after a failed run
 
 
 if __name__ == "__main__":

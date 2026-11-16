@@ -96,7 +96,7 @@ def clean_series(time: np.ndarray | None, flux: np.ndarray,
     if quarter is not None:
         quarter = quarter[order]
     # exact duplicate timestamps: keep the first
-    keep = np.concatenate(([True], np.diff(time) > 0))
+    keep = np.concatenate(([True], np.diff(time) > 0)) if len(time) else np.zeros(0, dtype=bool)
     n_dropped += int((~keep).sum())
     time, flux = time[keep], flux[keep]
     if quarter is not None:
@@ -218,10 +218,10 @@ def make_views(phase: np.ndarray, flux: np.ndarray, period: float, duration_days
 
 # ---------------------------------------------------------------- full path
 
-def process_light_curve(time: np.ndarray | None, flux: np.ndarray, period: float, t0: float,
-                        duration_hours: float, quarter: np.ndarray | None = None,
-                        cfg: PreprocessConfig | None = None) -> ProcessedCurve:
-    """Steps 1-7 for one signal. Used identically by training and by inference."""
+def flatten_series(time: np.ndarray | None, flux: np.ndarray, period: float, t0: float,
+                   duration_hours: float, quarter: np.ndarray | None = None,
+                   cfg: PreprocessConfig | None = None) -> dict:
+    """Steps 1-4: validate, clean, segment, detrend and clip. Returns the flattened series and counts."""
     cfg = cfg or PreprocessConfig()
     if not (np.isfinite(period) and period > 0):
         raise PreprocessingError("period must be a positive number of days")
@@ -244,6 +244,20 @@ def process_light_curve(time: np.ndarray | None, flux: np.ndarray, period: float
     not_outlier = clip_outliers(flat, cfg.clip_sigma_upper)
     n_clipped = int((~not_outlier).sum())
     t, flat = t[not_outlier], flat[not_outlier]
+    if not np.isfinite(t[-1] - t[0]):
+        raise PreprocessingError("the time values are too large to process")
+    return {"time": t, "flux": flat, "n_input": n_input, "n_missing_dropped": n_dropped,
+            "n_segments": n_segments, "n_outliers_clipped": n_clipped}
+
+
+def fold_and_bin(series: dict, period: float, t0: float, duration_hours: float,
+                 cfg: PreprocessConfig | None = None) -> ProcessedCurve:
+    """Steps 5-7: fold the flattened series on the ephemeris and bin it into the two model views."""
+    cfg = cfg or PreprocessConfig()
+    t, flat = series["time"], series["flux"]
+    n_input, n_dropped = series["n_input"], series["n_missing_dropped"]
+    n_segments, n_clipped = series["n_segments"], series["n_outliers_clipped"]
+    duration_days = duration_hours / 24.0
 
     phase = fold(t, period, t0)
     views, g_centres, l_centres, view_stats = make_views(phase, flat, period, duration_days, cfg)
@@ -268,6 +282,15 @@ def process_light_curve(time: np.ndarray | None, flux: np.ndarray, period: float
                           duration_hours=float(duration_hours), stats=stats)
 
 
+def process_light_curve(time: np.ndarray | None, flux: np.ndarray, period: float, t0: float,
+                        duration_hours: float, quarter: np.ndarray | None = None,
+                        cfg: PreprocessConfig | None = None) -> ProcessedCurve:
+    """Steps 1-7 for one signal. Used identically by training and by inference."""
+    cfg = cfg or PreprocessConfig()
+    series = flatten_series(time, flux, period, t0, duration_hours, quarter=quarter, cfg=cfg)
+    return fold_and_bin(series, period, t0, duration_hours, cfg=cfg)
+
+
 def estimate_ephemeris(time: np.ndarray | None, flux: np.ndarray,
                        cfg: PreprocessConfig | None = None) -> dict:
     """Estimate (period, t0, duration) with Box Least Squares for a curve that has no catalog ephemeris.
@@ -284,9 +307,13 @@ def estimate_ephemeris(time: np.ndarray | None, flux: np.ndarray,
             f"only {len(t)} valid observations after removing missing values; need at least {cfg.min_points}")
     flat, keep, _ = detrend(t, f, None, 0.5, cfg)  # generic 2-day window before any duration is known
     t, flat = t[keep], flat[keep]
+    if len(t) < cfg.min_points:
+        raise PreprocessingError("too few observations left after detrending")
     ok = clip_outliers(flat, cfg.clip_sigma_upper)
     t, flat = t[ok], flat[ok]
     span = float(t[-1] - t[0])
+    if not np.isfinite(span):
+        raise PreprocessingError("the time values are too large to process")
     if span <= 1.0:
         raise PreprocessingError("the light curve spans less than one day; cannot search for a period")
     # bin to ~1 hour to bound the cost of the search on multi-year curves
@@ -304,7 +331,12 @@ def estimate_ephemeris(time: np.ndarray | None, flux: np.ndarray,
     scatter = 1.4826 * float(np.median(np.abs(flat - np.median(flat))))
     bls = BoxLeastSquares(t, flat, dy=scatter if scatter > 0 else None)
     result = bls.power(periods, durations, objective="snr")
-    best = int(np.argmax(result.power))
+    power = np.where(np.isfinite(result.power), result.power, -np.inf)
+    best = int(np.argmax(power))
+    if not (np.isfinite(result.depth_snr[best]) and result.depth_snr[best] > 0 and result.depth[best] > 0):
+        raise PreprocessingError(
+            "no periodic dip was found in this light curve, so no period could be estimated; "
+            "supply the period, mid-transit time and duration if you know them")
     return {
         "period": float(result.period[best]),
         "t0": float(result.transit_time[best]),

@@ -37,8 +37,14 @@ def install_error_handlers(app: FastAPI) -> None:
         code = {404: "not_found", 405: "method_not_allowed"}.get(exc.status_code, "http_error")
         return JSONResponse(error_body(code, str(exc.detail)), status_code=exc.status_code)
 
-    @app.exception_handler(Exception)
-    async def _unhandled(request: Request, exc: Exception):
-        logger.exception("unhandled error on %s %s", request.method, request.url.path)
-        return JSONResponse(error_body("internal_error", "Unexpected server error. See the server log."),
-                            status_code=500)
+    # Unexpected errors are caught in a middleware that sits inside the CORS middleware, so that the
+    # JSON 500 still carries CORS headers and a browser can read it. (A plain exception handler for
+    # Exception runs outside CORS.) Call install_error_handlers() before adding CORSMiddleware.
+    @app.middleware("http")
+    async def _unhandled(request: Request, call_next):
+        try:
+            return await call_next(request)
+        except Exception:
+            logger.exception("unhandled error on %s %s", request.method, request.url.path)
+            return JSONResponse(error_body("internal_error", "Unexpected server error. See the server log."),
+                                status_code=500)

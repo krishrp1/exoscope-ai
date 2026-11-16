@@ -15,8 +15,10 @@ import numpy as np
 
 from . import config
 from .explainability import explain
-from .preprocessing import (PreprocessConfig, ProcessedCurve, Standardizer, estimate_ephemeris,
-                            process_light_curve)
+from .preprocessing import (PreprocessConfig, PreprocessingError, ProcessedCurve, Standardizer,
+                            estimate_ephemeris, flatten_series, fold_and_bin)
+
+WEAK_BLS_SNR = 7.1  # the Kepler pipeline's detection threshold; below it an estimated period is doubtful
 
 SOFTMAX_DISCLAIMER = (
     "The score is the model's softmax output for this input. It is not the probability that the "
@@ -89,30 +91,49 @@ class Predictor:
         def stage(name: str, started: float) -> None:
             timings[name] = round((_time.perf_counter() - started) * 1000, 3)
 
-        s = _time.perf_counter()
-        flux = np.asarray(flux, dtype=np.float64)
-        time_arr = None if time is None else np.asarray(time, dtype=np.float64)
-        stage("loading", s)
+        warnings: list[str] = []
+        cfg = self.preprocess_config
 
         s = _time.perf_counter()
+        flux = np.asarray(flux, dtype=np.float64).ravel()
+        time_arr = None if time is None else np.asarray(time, dtype=np.float64).ravel()
+        stage("loading", s)
+
+        s = _time.perf_counter()  # input checks: shapes and the number of usable observations
+        if time_arr is not None and len(time_arr) != len(flux):
+            raise PreprocessingError(f"time and flux have different lengths ({len(time_arr)} vs {len(flux)})")
+        usable = np.isfinite(flux) if time_arr is None else np.isfinite(flux) & np.isfinite(time_arr)
+        if int(usable.sum()) < cfg.min_points:
+            raise PreprocessingError(
+                f"only {int(usable.sum())} valid observations after removing missing values; "
+                f"need at least {cfg.min_points}")
+        stage("validating", s)
+
         if period is None or t0 is None or duration_hours is None:
-            est = estimate_ephemeris(time_arr, flux, self.preprocess_config)
+            s = _time.perf_counter()
+            est = estimate_ephemeris(time_arr, flux, cfg)
             period, t0, duration_hours = est["period"], est["t0"], est["duration_hours"]
             ephemeris = {**est, "source": "estimated", "note": (
                 "Estimated from the uploaded light curve. The model was trained on catalog ephemerides, "
                 "so results for estimated ephemerides are less reliable.")}
+            if est["bls_snr"] < WEAK_BLS_SNR:
+                warnings.append(f"The periodic signal is weak (BLS signal-to-noise {est['bls_snr']:.1f}); "
+                                "the estimated period may be wrong, so treat this result with caution.")
+            stage("ephemeris_search", s)
         else:
             ephemeris = {"period": float(period), "t0": float(t0), "duration_hours": float(duration_hours),
                          "source": "provided"}
-        stage("validating", s)
 
-        s = _time.perf_counter()
-        pc = process_light_curve(time_arr, flux, period, t0, duration_hours, quarter=quarter,
-                                 cfg=self.preprocess_config)
+        s = _time.perf_counter()  # clean, segment, detrend, clip
+        series = flatten_series(time_arr, flux, period, t0, duration_hours, quarter=quarter, cfg=cfg)
         stage("normalizing", s)
 
-        s = _time.perf_counter()
+        s = _time.perf_counter()  # fold, bin into the two views, standardize
+        pc = fold_and_bin(series, period, t0, duration_hours, cfg=cfg)
         x = self.standardizer.transform(pc.views[None])[0]
+        if not pc.views[:, 1].any():
+            warnings.append("No dip was found at this ephemeris: the model input is flat, "
+                            "so the score says little about this light curve.")
         stage("extracting_features", s)
 
         s = _time.perf_counter()
@@ -129,6 +150,7 @@ class Predictor:
             "ephemeris": ephemeris,
             "processed": processed_to_dict(pc),
             "signal": pc.stats,
+            "warnings": warnings,
             "disclaimer": SOFTMAX_DISCLAIMER,
         }
         if with_explanation:

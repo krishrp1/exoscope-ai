@@ -9,6 +9,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Callable
 
+from backend.ml import config
 from backend.ml.train import TrainParams, train_model
 
 logger = logging.getLogger("exoscope.training")
@@ -67,6 +68,8 @@ class TrainingManager:
         with self._lock:
             if not self.is_running():
                 raise TrainingNotRunning("no training job is running")
+            if self._stop.is_set():  # already stopping: do nothing twice
+                return self.snapshot()
             self._stop.set()
             self.status["state"] = "stopping"
             self.status["message"] = "stop requested; finishing the current batch"
@@ -106,8 +109,8 @@ class TrainingManager:
                                    eta_seconds=None)
         except Exception as exc:
             logger.exception("training failed")
-            self.status.update(state="failed", message="training failed", error=f"{type(exc).__name__}: {exc}",
-                               eta_seconds=None)
+            detail = f"{type(exc).__name__}: {exc}".replace(str(config.REPO_ROOT), ".")  # no absolute paths
+            self.status.update(state="failed", message="training failed", error=detail, eta_seconds=None)
             self._publish({"type": "error", "timestamp": _now(), "message": self.status["error"]})
         finally:
             self.status["finished_at"] = _now()

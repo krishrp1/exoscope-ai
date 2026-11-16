@@ -38,9 +38,9 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(title="ExoScope AI", version=VERSION, lifespan=lifespan,
               description="Deep-learning classification of Kepler transit signals.")
+install_error_handlers(app)  # first, so its catch-all middleware ends up inside CORS
 app.add_middleware(CORSMiddleware, allow_origins=get_settings().cors_origin_list, allow_credentials=False,
                    allow_methods=["*"], allow_headers=["*"])
-install_error_handlers(app)
 for module in (routes_dataset, routes_model, routes_predict, routes_training):
     app.include_router(module.router)
 

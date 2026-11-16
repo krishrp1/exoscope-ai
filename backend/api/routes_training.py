@@ -9,6 +9,7 @@ from backend.ml.train import TrainParams
 
 from .errors import ApiError
 from .schemas import TrainingStartRequest
+from .settings import get_settings
 from .state import state
 from .training_manager import TrainingAlreadyRunning, TrainingNotRunning
 
@@ -56,6 +57,10 @@ def training_history() -> dict:
 @router.websocket("/ws/training")
 async def training_stream(ws: WebSocket) -> None:
     """Sends a snapshot on connect, then every training event as it happens, plus heartbeats."""
+    origin = ws.headers.get("origin")  # browsers always send it; scripts usually do not
+    if origin is not None and origin not in get_settings().cors_origin_list:
+        await ws.close(code=1008, reason="origin not allowed")
+        return
     await ws.accept()
     queue = state.training.subscribe()
     try:
