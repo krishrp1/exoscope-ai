@@ -223,6 +223,7 @@
     "n_points_max": 61710,
     "n_quarters_median": 17.0,
     "n_quarters_min": 1,
+    "n_quarters_max": 18,
     "time_span_days_median": 1459.4890543647853,
     "t_start_min_bkjd": 120.53829829797178,
     "t_end_max_bkjd": 1591.0022457942177,
@@ -245,5 +246,26 @@
       "n_unique_targets": 3546,
       "n_requested_targets_fetched": 3546
     }
+  },
+  "splits": {
+    "train": {
+      "n_signals": 2902,
+      "n_stars": 2389,
+      "FALSE POSITIVE": 1790,
+      "CONFIRMED": 1112
+    },
+    "val": {
+      "n_signals": 608,
+      "n_stars": 512,
+      "FALSE POSITIVE": 386,
+      "CONFIRMED": 222
+    },
+    "test": {
+      "n_signals": 626,
+      "n_stars": 512,
+      "FALSE POSITIVE": 374,
+      "CONFIRMED": 252
+    },
+    "n_stars_in_more_than_one_split": 0
   }
 }

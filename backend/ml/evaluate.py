@@ -131,3 +131,8 @@ if __name__ == "__main__":
         print(f"{key:12s} recomputed={fresh[key]!r:24} saved={saved[key]!r}")
     print("confusion matrix recomputed:", fresh["confusion_matrix"]["matrix"],
           "saved:", saved["confusion_matrix"]["matrix"])
+    mismatched = [k for k in ("accuracy", "precision", "recall", "f1", "roc_auc", "pr_auc")
+                  if abs(fresh[k] - saved[k]) > 1e-6]
+    if mismatched or fresh["confusion_matrix"]["matrix"] != saved["confusion_matrix"]["matrix"]:
+        raise SystemExit(f"MISMATCH between saved metrics and recomputation: {mismatched or 'confusion matrix'}")
+    print("OK: saved metrics match the recomputation from the saved model")

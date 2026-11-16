@@ -13,7 +13,7 @@ Decisions taken without the owner present, with the alternatives considered and 
 ### D2. Direct download from the MAST public S3 mirror, not `lightkurve`
 - **Decision.** `backend/ml/fetch_lightcurves.py` lists and downloads `*_llc.fits` files from `https://stpubdata.s3.amazonaws.com/kepler/public/lightcurves/` and reads them with `astropy`.
 - **Alternatives.** `lightkurve.search_lightcurve(...).download_all()`: same files, but one search round-trip per target and serial downloads.
-- **Why.** Same data, no credentials, and a measured 0.4 to 0.75 s per target with 40 threads. The files are the official mission products; only the transport differs.
+- **Why.** Same data, no credentials, and a measured 0.33 to 0.41 s per target with `--workers 40` (770 s for 2,316 stars, 503 s for 1,230; see `data/fetch.log`, `data/fetch2.log`; those two logs predate the fetcher printing its worker count, so the 40 is from the command used, not from the log). The files are the official mission products; only the transport differs.
 
 ### D3. PDCSAP flux, quality flag 0 only
 - **Decision.** Use `PDCSAP_FLUX` (systematics-corrected by the Kepler pipeline) and keep cadences with `SAP_QUALITY == 0` and finite values.
@@ -26,8 +26,8 @@ Decisions taken without the owner present, with the alternatives considered and 
 - **Why.** It uses the dataset's real labels and does not relabel anything.
 
 ### D5. A seeded random sample that keeps the catalog class ratio
-- **Decision.** Fetch light curves for 1,200 CONFIRMED and 2,464 FALSE POSITIVE KOIs (the catalog's 2.05 : 1 ratio) plus 150 CANDIDATE KOIs, sampled with seed 42 from rows that have a usable ephemeris.
-- **Alternatives.** (a) All 9,564 KOIs: about 8,200 stars and roughly 120 GB of FITS traffic; too slow for one unattended run. (b) A class-balanced sample: it would make test-set precision and PR-AUC look better than they are at the real prevalence.
+- **Decision.** Fetch light curves for 1,200 CONFIRMED and 2,464 FALSE POSITIVE KOIs (the catalog's 2.05 : 1 ratio) plus 150 CANDIDATE KOIs, sampled with seed 42 from rows that have a usable ephemeris. The first fetch used a class-balanced 1,200 + 1,200; it was extended to 2,464 FALSE POSITIVE rows once the prevalence problem in alternative (b) was recognized. The seeded sample is prefix-consistent, so the final set equals one run with the final counts.
+- **Alternatives.** (a) All 9,564 KOIs: 8,214 stars at about 7.5 MB each, roughly 60 GB of FITS traffic; too slow for one unattended run. (b) A class-balanced sample: it would make test-set precision and PR-AUC look better than they are at the real prevalence.
 - **Why.** Evaluation should reflect the prevalence in the catalog. Imbalance is handled in training with class weights instead of by changing the test distribution.
 - **Follow-up.** A star's light curve contains all of its KOIs, so every KOI on a fetched star is used (4,136 labelled signals: 1,586 CONFIRMED, 2,550 FALSE POSITIVE). This adds data at no download cost but lifts the positive share to 38.3% against 32.7% in the catalog, because confirmed planets cluster in multi-planet systems. Alternative considered: use only the sampled rows (exact catalog ratio, 472 fewer signals). Kept the larger set and documented the bias in `docs/DATASET_REPORT.md`.
 
@@ -56,7 +56,7 @@ Decisions taken without the owner present, with the alternatives considered and 
 ### D10. Detrending with a moving median, window at least 4 transit durations
 - **Decision.** Each contiguous segment is divided by a moving median whose window is 4 transit durations, clamped to 1 to 6 days.
 - **Alternatives.** A spline fitted with in-transit points masked (Shallue & Vanderburg): slightly better depth preservation, more code and tuning.
-- **Why.** In-transit cadences are a minority of every window, so the median follows the star, not the dip. Simple and deterministic. Cost: transits longer than about 1.5 days are partly flattened (the window is capped at 6 days).
+- **Why.** In-transit cadences are a minority of every window, so the median follows the star, not the dip. Simple and deterministic. Cost: transits longer than about 1.5 days are partly flattened (the window is capped at 6 days). Second cost, found by the Phase 2 reviewer: on stars with smooth, high-amplitude variability the median filter removes the signal entirely and the view becomes all zeros. This affects 16 of 4,136 samples (15 FALSE POSITIVE, 1 CONFIRMED; 11 in train, 5 in validation, 0 in test). They are kept as they are; the pipeline was not changed after seeing test results.
 
 ### D11. Only upward outliers are clipped
 - **Why.** Downward excursions are the signal. Clipping them would erase deep eclipses.

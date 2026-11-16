@@ -146,7 +146,8 @@ def main() -> None:
     done = set(manifest[manifest["status"].isin(done_status)]["kepid"].astype(int)) if not manifest.empty else set()
     todo = [k for k in kepids if k not in done or (k in done and not lightcurve_path(k).exists()
                                                     and manifest.set_index("kepid").loc[k, "status"] == "ok")]
-    print(f"selected KOIs: {len(selected)}  unique targets: {len(kepids)}  to fetch: {len(todo)}", flush=True)
+    print(f"selected KOIs: {len(selected)}  unique targets: {len(kepids)}  to fetch: {len(todo)}  "
+          f"workers: {args.workers}", flush=True)
 
     rows = {int(r["kepid"]): r for r in manifest.to_dict("records")}
     config.DATA_DIR.mkdir(parents=True, exist_ok=True)

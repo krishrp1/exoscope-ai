@@ -81,6 +81,7 @@ def audit() -> dict:
             "n_points_max": int(ok["n_points"].max()),
             "n_quarters_median": float(ok["n_quarters"].median()),
             "n_quarters_min": int(ok["n_quarters"].min()),
+            "n_quarters_max": int(ok["n_quarters"].max()),
             "time_span_days_median": float((ok["t_end"] - ok["t_start"]).median()),
             "t_start_min_bkjd": float(ok["t_start"].min()),
             "t_end_max_bkjd": float(ok["t_end"].max()),
@@ -98,6 +99,18 @@ def audit() -> dict:
             "n_requested_targets_fetched": int(requested["kepid"].isin(have).sum() and
                                                requested[requested["kepid"].isin(have)]["kepid"].nunique()),
         }
+    if config.PROCESSED_PATH.exists():
+        with np.load(config.PROCESSED_PATH, allow_pickle=False) as z:
+            y, kep, split = z["y"], z["kepid"], z["split"]
+        stats["splits"] = {name: {"n_signals": int((split == name).sum()),
+                                  "n_stars": int(len(np.unique(kep[split == name]))),
+                                  "FALSE POSITIVE": int(((split == name) & (y == 0)).sum()),
+                                  "CONFIRMED": int(((split == name) & (y == 1)).sum())}
+                           for name in ("train", "val", "test")}
+        stats["splits"]["n_stars_in_more_than_one_split"] = int(
+            len(set(kep[split == "train"]) & set(kep[split == "val"]))
+            + len(set(kep[split == "train"]) & set(kep[split == "test"]))
+            + len(set(kep[split == "val"]) & set(kep[split == "test"])))
     return stats
 
 

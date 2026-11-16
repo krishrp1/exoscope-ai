@@ -1,6 +1,6 @@
 # Dataset Report
 
-Every number here was produced by code in this repository. To regenerate them: `backend/.venv/bin/python -m backend.scripts.dataset_audit` (writes `docs/dataset_stats.json`) and `backend/.venv/bin/python -m backend.ml.preprocessing` (prints split counts).
+Every number here was produced by code in this repository. To regenerate them: `backend/.venv/bin/python -m backend.scripts.dataset_audit` (writes `docs/dataset_stats.json`, including the split table once `data/processed_views.npz` exists). `backend/.venv/bin/python -m backend.ml.preprocessing` builds that file.
 
 ## 1. What the Kaggle download contains
 
@@ -47,11 +47,11 @@ It is the Kepler Objects of Interest (KOI) cumulative table from the NASA Exopla
 | `koi_kepmag` | 6.966 | 14.52 | 20.003 |
 | `koi_score` | 0 | 0.334 | 1 |
 
-Oddities: one row has `koi_fpflag_nt = 465` (the flag is otherwise 0 or 1). The maximum period (129,995 days) and radius (200,346 Earth radii) are unphysical fit results on false positives. They are left untouched in the catalog; the flag columns are not model inputs.
+Oddities: one row has `koi_fpflag_nt = 465` (the flag is otherwise 0 or 1). The maximum period (129,995.8 days, K01174.01, a CANDIDATE) and the maximum radius (200,346 Earth radii, K06604.01, a FALSE POSITIVE) are unphysical fit results. They are left untouched in the catalog; the flag columns are not model inputs.
 
 ### Missing values
 
-36 of 49 columns have missing values. `koi_teq_err1` and `koi_teq_err2` are empty in every row (9,564). `kepler_name` is missing in 7,205 rows (only confirmed planets have a name). `koi_score` is missing in 1,510. Most fitted parameters are missing in 321 to 483 rows; `koi_kepmag` in 1.
+36 of 49 columns have missing values. `koi_teq_err1` and `koi_teq_err2` are empty in every row (9,564). `kepler_name` is missing in 7,205 rows; the 2,359 named rows are 2,357 CONFIRMED and 2 FALSE POSITIVE. `koi_score` is missing in 1,510. Most fitted parameters are missing in 321 to 483 rows; `koi_kepmag` in 1.
 
 The three columns the pipeline needs (`koi_period`, `koi_time0bk`, `koi_duration`) are present and positive in all 9,564 rows.
 
@@ -84,11 +84,11 @@ Because the Kaggle file has no time series, light curves for its targets were fe
 
 ### Which targets
 
-A seeded (42) random sample of KOI rows: 1,200 CONFIRMED, 2,464 FALSE POSITIVE (the catalog ratio) and 150 CANDIDATE. These 3,814 rows sit on 3,546 stars.
+A seeded (42) random sample of KOI rows: 1,200 CONFIRMED, 2,464 FALSE POSITIVE (the catalog ratio) and 150 CANDIDATE. These 3,814 rows sit on 3,546 stars. The fetch ran in two stages (first 1,200 + 1,200 + 150 rows on 2,316 stars, then extended to 2,464 FALSE POSITIVE rows); because the seeded sample of a larger size contains the smaller one, the result equals a single run with the final counts.
 
 - Stars requested: 3,546. Fetched successfully: 3,546. Failed: 0.
 - Observations per star: median 57,124, minimum 1,252, maximum 61,710.
-- Quarters per star: median 17, minimum 1.
+- Quarters per star: median 17, minimum 1, maximum 18.
 - Time span per star: median 1,459.5 days. Earliest cadence BKJD 120.54, latest 1,591.00.
 
 ### What is actually used

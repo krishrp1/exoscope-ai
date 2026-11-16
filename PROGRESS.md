@@ -43,6 +43,8 @@ Confusion matrix (rows true, columns predicted; FALSE POSITIVE, CONFIRMED): `[[3
 - Validation loss is noisy from epoch to epoch (for example 0.20 then 0.35), so the chosen checkpoint depends on that noise.
 - One training run, one seed, no hyperparameter search, no confidence intervals.
 - Test prevalence is 40%, higher than the catalog's 33%; precision would be lower at catalog prevalence.
+- 16 samples (0.4%) are flattened to an all-zero input by the detrending step (D10); the model sees no signal for them.
+- The standardizer's standard deviation is computed in float32 and differs from the float64 value by about 0.1%. It is applied identically in training and inference.
 - The model depends on a correct ephemeris. Performance with estimated (BLS) ephemerides was not measured.
 
 **Decisions:** D10 to D16.

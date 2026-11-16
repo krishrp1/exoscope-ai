@@ -53,7 +53,7 @@ def test_training_saves_all_artifacts(trained):
     for name in ("model.keras", "model_config.json", "preprocessing_config.json", "label_mapping.json"):
         assert (models / name).exists(), name
     for name in ("metrics.json", "training_history.json", "test_predictions.csv",
-                 "plots/accuracy_curve.png", "plots/loss_curve.png", "plots/roc_curve.png",
+                 "plots/accuracy_curve.png", "plots/loss_curve.png", "plots/roc_curve.png", "plots/pr_curve.png",
                  "plots/confusion_matrix.png"):
         assert (artifacts / name).exists(), name
     assert not (artifacts / "_run_in_progress").exists()
