@@ -1,0 +1,249 @@
+{
+  "kaggle": {
+    "dataset": "arashnic/exoplanets",
+    "files": [
+      {
+        "name": "exoplanets.csv",
+        "bytes": 3132961,
+        "sha256": "6d8487f3a935e73cdf399f4d13266606cbbc13382c46e00857317f6d390d57f6"
+      }
+    ],
+    "n_rows": 9564,
+    "n_columns": 49,
+    "columns": {
+      "kepid": "int64",
+      "kepoi_name": "str",
+      "kepler_name": "str",
+      "koi_disposition": "str",
+      "koi_pdisposition": "str",
+      "koi_score": "float64",
+      "koi_fpflag_nt": "int64",
+      "koi_fpflag_ss": "int64",
+      "koi_fpflag_co": "int64",
+      "koi_fpflag_ec": "int64",
+      "koi_period": "float64",
+      "koi_period_err1": "float64",
+      "koi_period_err2": "float64",
+      "koi_time0bk": "float64",
+      "koi_time0bk_err1": "float64",
+      "koi_time0bk_err2": "float64",
+      "koi_impact": "float64",
+      "koi_impact_err1": "float64",
+      "koi_impact_err2": "float64",
+      "koi_duration": "float64",
+      "koi_duration_err1": "float64",
+      "koi_duration_err2": "float64",
+      "koi_depth": "float64",
+      "koi_depth_err1": "float64",
+      "koi_depth_err2": "float64",
+      "koi_prad": "float64",
+      "koi_prad_err1": "float64",
+      "koi_prad_err2": "float64",
+      "koi_teq": "float64",
+      "koi_teq_err1": "float64",
+      "koi_teq_err2": "float64",
+      "koi_insol": "float64",
+      "koi_insol_err1": "float64",
+      "koi_insol_err2": "float64",
+      "koi_model_snr": "float64",
+      "koi_tce_plnt_num": "float64",
+      "koi_tce_delivname": "str",
+      "koi_steff": "float64",
+      "koi_steff_err1": "float64",
+      "koi_steff_err2": "float64",
+      "koi_slogg": "float64",
+      "koi_slogg_err1": "float64",
+      "koi_slogg_err2": "float64",
+      "koi_srad": "float64",
+      "koi_srad_err1": "float64",
+      "koi_srad_err2": "float64",
+      "ra": "float64",
+      "dec": "float64",
+      "koi_kepmag": "float64"
+    },
+    "n_exact_duplicate_rows": 0,
+    "n_duplicate_kepoi_name": 0,
+    "n_unique_kepid": 8214,
+    "n_stars_with_multiple_koi": 938,
+    "max_koi_per_star": 7,
+    "n_stars_with_both_confirmed_and_false_positive": 38,
+    "missing_values": {
+      "kepler_name": 7205,
+      "koi_score": 1510,
+      "koi_period_err1": 454,
+      "koi_period_err2": 454,
+      "koi_time0bk_err1": 454,
+      "koi_time0bk_err2": 454,
+      "koi_impact": 363,
+      "koi_impact_err1": 454,
+      "koi_impact_err2": 454,
+      "koi_duration_err1": 454,
+      "koi_duration_err2": 454,
+      "koi_depth": 363,
+      "koi_depth_err1": 454,
+      "koi_depth_err2": 454,
+      "koi_prad": 363,
+      "koi_prad_err1": 363,
+      "koi_prad_err2": 363,
+      "koi_teq": 363,
+      "koi_teq_err1": 9564,
+      "koi_teq_err2": 9564,
+      "koi_insol": 321,
+      "koi_insol_err1": 321,
+      "koi_insol_err2": 321,
+      "koi_model_snr": 363,
+      "koi_tce_plnt_num": 346,
+      "koi_tce_delivname": 346,
+      "koi_steff": 363,
+      "koi_steff_err1": 468,
+      "koi_steff_err2": 483,
+      "koi_slogg": 363,
+      "koi_slogg_err1": 468,
+      "koi_slogg_err2": 468,
+      "koi_srad": 363,
+      "koi_srad_err1": 468,
+      "koi_srad_err2": 468,
+      "koi_kepmag": 1
+    },
+    "n_columns_entirely_missing": 2,
+    "koi_disposition_counts": {
+      "FALSE POSITIVE": 4840,
+      "CANDIDATE": 2367,
+      "CONFIRMED": 2357
+    },
+    "koi_pdisposition_counts": {
+      "FALSE POSITIVE": 4847,
+      "CANDIDATE": 4717
+    },
+    "disposition_crosstab": {
+      "CANDIDATE": {
+        "CANDIDATE": 2367,
+        "FALSE POSITIVE": 0
+      },
+      "CONFIRMED": {
+        "CANDIDATE": 2349,
+        "FALSE POSITIVE": 8
+      },
+      "FALSE POSITIVE": {
+        "CANDIDATE": 1,
+        "FALSE POSITIVE": 4839
+      }
+    },
+    "false_positive_flag_sums": {
+      "koi_fpflag_nt": 1995,
+      "koi_fpflag_ss": 2226,
+      "koi_fpflag_co": 1889,
+      "koi_fpflag_ec": 1148
+    },
+    "koi_fpflag_value_counts": {
+      "koi_fpflag_nt": {
+        "0": 8033,
+        "1": 1530,
+        "465": 1
+      },
+      "koi_fpflag_ss": {
+        "0": 7338,
+        "1": 2226
+      },
+      "koi_fpflag_co": {
+        "0": 7675,
+        "1": 1889
+      },
+      "koi_fpflag_ec": {
+        "0": 8416,
+        "1": 1148
+      }
+    },
+    "n_usable_ephemeris": 9564,
+    "numeric_ranges": {
+      "koi_period": {
+        "min": 0.241842544,
+        "median": 9.75283067,
+        "max": 129995.7784
+      },
+      "koi_time0bk": {
+        "min": 120.5159138,
+        "median": 137.22459500000002,
+        "max": 1472.522306
+      },
+      "koi_duration": {
+        "min": 0.052,
+        "median": 3.7926,
+        "max": 138.54
+      },
+      "koi_depth": {
+        "min": 0.0,
+        "median": 421.0,
+        "max": 1540000.0
+      },
+      "koi_prad": {
+        "min": 0.08,
+        "median": 2.39,
+        "max": 200346.0
+      },
+      "koi_model_snr": {
+        "min": 0.0,
+        "median": 23.0,
+        "max": 9054.7
+      },
+      "koi_kepmag": {
+        "min": 6.966,
+        "median": 14.52,
+        "max": 20.003
+      },
+      "koi_score": {
+        "min": 0.0,
+        "median": 0.334,
+        "max": 1.0
+      },
+      "ra": {
+        "min": 279.85272,
+        "median": 292.261125,
+        "max": 301.72076
+      },
+      "dec": {
+        "min": 36.577381,
+        "median": 43.6775035,
+        "max": 52.33601
+      }
+    },
+    "has_flux_time_series_columns": false,
+    "labelled_imbalance_ratio_fp_to_confirmed": 2.0534577853203224,
+    "labelled_positive_fraction": 0.3274975684312908
+  },
+  "lightcurves": {
+    "source": "NASA Kepler long-cadence light curves (PDCSAP_FLUX) from MAST, public S3 mirror stpubdata",
+    "provenance": "Additional genuine astronomical observations",
+    "fetch_status_counts": {
+      "ok": 3546
+    },
+    "n_targets_ok": 3546,
+    "n_points_median": 57124.0,
+    "n_points_min": 1252,
+    "n_points_max": 61710,
+    "n_quarters_median": 17.0,
+    "n_quarters_min": 1,
+    "time_span_days_median": 1459.4890543647853,
+    "t_start_min_bkjd": 120.53829829797178,
+    "t_end_max_bkjd": 1591.0022457942177,
+    "median_cadence_minutes_over_sampled_targets": 29.4245417509228,
+    "n_targets_sampled_for_cadence": 51,
+    "koi_with_lightcurve_by_disposition": {
+      "FALSE POSITIVE": 2550,
+      "CONFIRMED": 1586,
+      "CANDIDATE": 387
+    },
+    "n_koi_with_lightcurve": 4523,
+    "errors": [],
+    "requested_sample": {
+      "seed": 42,
+      "koi_by_disposition": {
+        "FALSE POSITIVE": 2464,
+        "CONFIRMED": 1200,
+        "CANDIDATE": 150
+      },
+      "n_unique_targets": 3546,
+      "n_requested_targets_fetched": 3546
+    }
+  }
+}

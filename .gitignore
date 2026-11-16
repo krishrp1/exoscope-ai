@@ -1,0 +1,21 @@
+# data and model weights (reproducible via scripts)
+data/*
+!data/.gitkeep
+backend/saved_models/*
+!backend/saved_models/.gitkeep
+backend/artifacts/*
+!backend/artifacts/.gitkeep
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# node
+node_modules/
+.next/
+out/
+# env and caches
+.env
+.env.local
+.DS_Store
+*.log
