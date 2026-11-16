@@ -377,3 +377,13 @@ def test_websocket_rejects_disallowed_origin(client):
             ws.receive_json()
     with client.websocket_connect("/ws/training", headers={"origin": "http://localhost:3000"}) as ws:
         assert ws.receive_json()["type"] == "snapshot"
+
+
+def test_huge_integers_and_long_cells_do_not_crash_inspect(client):
+    body = b"time,flux\n1," + b"9" * 500 + b"\n2,3\n3,4\n"
+    r = client.post("/api/predict/upload/inspect", files={"file": ("big.csv", body, "text/csv")})
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert len(data["preview"][0][1]) <= 41  # long cells are truncated in the preview
+    flux = next(c for c in data["columns"] if c["name"] == "flux")
+    assert flux["n_missing"] == 1  # the overflowing value is not a usable number

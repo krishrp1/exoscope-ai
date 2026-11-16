@@ -101,12 +101,25 @@ def _all_numeric(first_line: str, sep: str) -> bool:
         return False
 
 
+def to_float(series: pd.Series) -> np.ndarray:
+    """Column as float64, with anything that is not a finite number turned into NaN."""
+    try:
+        values = pd.to_numeric(series, errors="coerce").to_numpy(dtype=np.float64)
+    except OverflowError:  # integers with hundreds of digits: convert one by one, they become inf
+        def one(v) -> float:
+            try:
+                return float(v)
+            except (TypeError, ValueError, OverflowError):
+                return np.nan
+        values = np.array([one(v) for v in series], dtype=np.float64)
+    return np.where(np.isfinite(values), values, np.nan)
+
+
 def numeric_columns(df: pd.DataFrame) -> dict[str, dict]:
     """Per column: how many values parse as numbers and how many are missing."""
     info = {}
     for col in df.columns:
-        numeric = pd.to_numeric(df[col], errors="coerce")
-        n_numeric = int(np.isfinite(numeric).sum())
+        n_numeric = int(np.isfinite(to_float(df[col])).sum())
         info[col] = {"n_numeric": n_numeric, "n_missing": int(len(df) - n_numeric),
                      "is_numeric": n_numeric >= 0.5 * len(df)}
     return info
@@ -160,8 +173,8 @@ def extract_series(df: pd.DataFrame, time_column: str | None, flux_column: str |
                            {"columns": available})
     if time_column and time_column == flux_column:
         raise ApiError(422, "same_column", "Time and flux must be different columns.", {"columns": available})
-    flux = pd.to_numeric(df[flux_column], errors="coerce").to_numpy(dtype=np.float64)
-    time = pd.to_numeric(df[time_column], errors="coerce").to_numpy(dtype=np.float64) if time_column else None
+    flux = to_float(df[flux_column])
+    time = to_float(df[time_column]) if time_column else None
     missing = ~np.isfinite(flux) if time is None else ~(np.isfinite(flux) & np.isfinite(time))
     report = {"time_column": time_column, "flux_column": flux_column, "n_rows": int(len(df)),
               "has_header": bool(df.attrs.get("has_header", True)),
