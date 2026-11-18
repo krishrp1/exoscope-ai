@@ -1,0 +1,254 @@
+[
+  {
+    "route": "/",
+    "width": 1440,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/",
+    "width": 1024,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/",
+    "width": 768,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/",
+    "width": 390,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory",
+    "width": 1440,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory",
+    "width": 1024,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory",
+    "width": 768,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory",
+    "width": 390,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/dataset",
+    "width": 1440,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/dataset",
+    "width": 1024,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/dataset",
+    "width": 768,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/dataset",
+    "width": 390,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/light-curves",
+    "width": 1440,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/light-curves",
+    "width": 1024,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/light-curves",
+    "width": 768,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/light-curves",
+    "width": 390,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/detect",
+    "width": 1440,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/detect",
+    "width": 1024,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/detect",
+    "width": 768,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/detect",
+    "width": 390,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/compare",
+    "width": 1440,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/compare",
+    "width": 1024,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/compare",
+    "width": 768,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/compare",
+    "width": 390,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/training",
+    "width": 1440,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/training",
+    "width": 1024,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/training",
+    "width": 768,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/training",
+    "width": 390,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/performance",
+    "width": 1440,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/performance",
+    "width": 1024,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/performance",
+    "width": 768,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/performance",
+    "width": 390,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/about",
+    "width": 1440,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/about",
+    "width": 1024,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/about",
+    "width": 768,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  },
+  {
+    "route": "/observatory/about",
+    "width": 390,
+    "violations": 0,
+    "critical": [],
+    "navErr": ""
+  }
+]

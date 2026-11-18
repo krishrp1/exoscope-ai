@@ -61,7 +61,7 @@ export function HeroTransit() {
   const planet = planetAt(phase);
   const flux = brightness(phase);
   const planetEl = (
-    <circle cx={planet.x} cy={planet.y} r={PLANET_R} fill="#0b1020" stroke="#38bdf8" strokeWidth="1.2" />
+    <circle cx={planet.x} cy={planet.y} r={PLANET_R} fill="#111114" stroke="#2dd4bf" strokeWidth="1.2" />
   );
 
   return (
@@ -81,27 +81,27 @@ export function HeroTransit() {
         </defs>
 
         <ellipse cx={STAR.x} cy={STAR.y + 4} rx={ORBIT.rx} ry={ORBIT.ry} fill="none"
-                 stroke="rgba(148,163,184,0.28)" strokeDasharray="3 6" />
+                 stroke="rgba(39,39,42,0.5)" strokeDasharray="3 6" />
         {!planet.inFront && planetEl}
         <circle cx={STAR.x} cy={STAR.y} r={STAR.r * 1.9} fill="url(#star-halo)" opacity={0.55 + 0.45 * ((flux - (1 - DEPTH)) / DEPTH)} />
         <circle cx={STAR.x} cy={STAR.y} r={STAR.r} fill="url(#star-core)" />
         {planet.inFront && planetEl}
 
-        <rect x={GRAPH.x} y={GRAPH.y} width={GRAPH.w} height={GRAPH.h} rx="8" fill="rgba(5,8,22,0.6)"
-              stroke="rgba(148,163,184,0.18)" />
-        <text x={GRAPH.x + 8} y={GRAPH.y + GRAPH.h - 6} fill="#94a3b8" fontSize="10" fontFamily="var(--font-geist-mono), monospace">
+        <rect x={GRAPH.x} y={GRAPH.y} width={GRAPH.w} height={GRAPH.h} rx="8" fill="rgba(24,24,27,0.6)"
+              stroke="rgba(39,39,42,0.3)" />
+        <text x={GRAPH.x + 8} y={GRAPH.y + GRAPH.h - 6} fill="#a1a1aa" fontSize="10" fontFamily="var(--font-geist-mono), monospace">
           relative brightness
         </text>
-        <text x={GRAPH.x + GRAPH.w - 8} y={GRAPH.y + GRAPH.h - 6} fill="#94a3b8" fontSize="10" textAnchor="end"
+        <text x={GRAPH.x + GRAPH.w - 8} y={GRAPH.y + GRAPH.h - 6} fill="#a1a1aa" fontSize="10" textAnchor="end"
               fontFamily="var(--font-geist-mono), monospace">
           time
         </text>
-        <path d={curve} fill="none" stroke="rgba(56,189,248,0.35)" strokeWidth="1.5" />
+        <path d={curve} fill="none" stroke="rgba(45,212,191,0.35)" strokeWidth="1.5" />
         <line x1={graphX(phase)} x2={graphX(phase)} y1={GRAPH.y + 4} y2={GRAPH.y + GRAPH.h - 4}
-              stroke="rgba(56,189,248,0.25)" />
-        <circle cx={graphX(phase)} cy={graphY(flux)} r="4.5" fill="#38bdf8" />
-        <circle cx={graphX(phase)} cy={graphY(flux)} r="9" fill="rgba(56,189,248,0.25)" />
-        <text x={STAR.x} y={SCENE_H - 6} fill="#94a3b8" fontSize="10" textAnchor="middle"
+              stroke="rgba(45,212,191,0.25)" />
+        <circle cx={graphX(phase)} cy={graphY(flux)} r="4.5" fill="#2dd4bf" />
+        <circle cx={graphX(phase)} cy={graphY(flux)} r="9" fill="rgba(45,212,191,0.25)" />
+        <text x={STAR.x} y={SCENE_H - 6} fill="#a1a1aa" fontSize="10" textAnchor="middle"
               fontFamily="var(--font-geist-mono), monospace">
           {flux < 1 ? "transit: the planet blocks part of the star" : "out of transit"}
         </text>

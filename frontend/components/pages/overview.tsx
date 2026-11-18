@@ -20,14 +20,14 @@ const CLASSES = ["CONFIRMED", "FALSE POSITIVE", "CANDIDATE"];
 function HealthRow({ ok, label, value }: { ok: boolean; label: string; value: string }) {
   const Icon = ok ? CheckCircle2 : CircleAlert;
   return (
-    <li className="flex items-center justify-between gap-3 border-b border-border/60 py-2 text-sm last:border-0">
+    <div role="listitem" className="flex items-center justify-between gap-3 border-b border-border/60 py-2 text-sm last:border-0">
       <span className="flex items-center gap-2">
         <Icon className={ok ? "size-4 text-success" : "size-4 text-warning"} aria-hidden="true" />
         <span className="sr-only">{ok ? "OK:" : "Note:"}</span>
         {label}
       </span>
       <span className="data shrink-0 text-muted-foreground">{value}</span>
-    </li>
+    </div>
   );
 }
 
@@ -115,7 +115,7 @@ export function OverviewPage() {
 
         <Panel title="Dataset health" description="Computed from the files on disk">
           {s ? (
-            <ul>
+            <ul role="list">
               <HealthRow ok={s.health.n_exact_duplicate_rows === 0 && s.health.n_duplicate_koi_names === 0} label="Duplicate signals"
                          value={fmtInt(s.health.n_duplicate_koi_names)} />
               <HealthRow ok={s.health.n_koi_missing_ephemeris === 0} label="Signals missing an ephemeris" value={fmtInt(s.health.n_koi_missing_ephemeris)} />

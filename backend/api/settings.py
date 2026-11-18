@@ -9,7 +9,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="EXOSCOPE_", env_file=(".env", "backend/.env"), extra="ignore")
 
-    cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+    cors_origins: str = "http://localhost:3001,http://127.0.0.1:3000"
     max_upload_mb: float = 10.0
     max_upload_rows: int = 500_000
     max_batch_size: int = 25

@@ -14,15 +14,15 @@ const PlotInner = dynamic(() => import("./plot-inner"), {
 });
 
 const AXIS = {
-  gridcolor: "rgba(148,163,184,0.12)",
-  zerolinecolor: "rgba(148,163,184,0.25)",
-  linecolor: "rgba(148,163,184,0.3)",
-  tickfont: { family: "var(--font-geist-mono), monospace", size: 11, color: "#94a3b8" },
-  title: { font: { size: 12, color: "#94a3b8" } },
+  gridcolor: "rgba(39,39,42,0.6)",
+  zerolinecolor: "rgba(39,39,42,0.5)",
+  linecolor: "#27272a",
+  tickfont: { family: "var(--font-geist-mono), monospace", size: 11, color: "#a1a1aa" },
+  title: { font: { size: 12, color: "#a1a1aa" } },
 };
 
-export const PLOT_COLORS = { cyan: "#38bdf8", violet: "#a78bfa", green: "#4ade80", amber: "#fbbf24", red: "#f87171",
-                             muted: "#94a3b8" };
+export const PLOT_COLORS = { cyan: "#2dd4bf", violet: "#60a5fa", green: "#34d399", amber: "#fbbf24", red: "#f87171",
+                             muted: "#a1a1aa" };
 
 export interface PlotProps {
   data: Data[];
@@ -48,8 +48,8 @@ function PlotBase({ data, layout, config, height = 360, ariaLabel, onRelayout, r
       margin: { l: 58, r: 16, t: 16, b: 46 },
       autosize: true,
       hovermode: "closest",
-      hoverlabel: { bgcolor: "#0f172a", bordercolor: "#38bdf8", font: { color: "#f8fafc", size: 12 } },
-      legend: { orientation: "h", y: 1.12, x: 0, font: { size: 11, color: "#94a3b8" } },
+      hoverlabel: { bgcolor: "#111114", bordercolor: "#2dd4bf", font: { color: "#fafafa", size: 12 } },
+      legend: { orientation: "h", y: 1.12, x: 0, font: { size: 11, color: "#a1a1aa" } },
       dragmode: "zoom",
       ...layout,
     };

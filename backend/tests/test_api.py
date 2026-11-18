@@ -364,9 +364,9 @@ def test_unexpected_error_is_json_500_with_cors_headers(client, monkeypatch):
         raise RuntimeError("boom")
 
     monkeypatch.setattr(routes_dataset.ds, "load_manifest", boom)
-    r = client.get("/api/dataset/stats", headers={"origin": "http://localhost:3000"})
+    r = client.get("/api/dataset/stats", headers={"origin": "http://localhost:3001"})
     assert r.status_code == 500 and r.json()["error"]["code"] == "internal_error"
-    assert r.headers["access-control-allow-origin"] == "http://localhost:3000"
+    assert r.headers["access-control-allow-origin"] == "http://localhost:3001"
 
 
 def test_websocket_rejects_disallowed_origin(client):
@@ -375,7 +375,7 @@ def test_websocket_rejects_disallowed_origin(client):
     with pytest.raises(WebSocketDisconnect):
         with client.websocket_connect("/ws/training", headers={"origin": "http://evil.example"}) as ws:
             ws.receive_json()
-    with client.websocket_connect("/ws/training", headers={"origin": "http://localhost:3000"}) as ws:
+    with client.websocket_connect("/ws/training", headers={"origin": "http://localhost:3001"}) as ws:
         assert ws.receive_json()["type"] == "snapshot"
 
 

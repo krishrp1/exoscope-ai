@@ -112,13 +112,15 @@ export default function LandingPage() {
               ["Fold", "Stack every orbit on top of each other using the signal's period."],
               ["Classify", "Judge the folded shape: U-shaped planet transit, or V-shaped eclipse with a secondary dip?"],
             ].map(([title, text], i) => (
-              <Reveal key={title} delay={i * 0.07}>
-                <li className="glass h-full rounded-xl p-5">
-                  <span className="data text-xs text-primary">STEP {i + 1}</span>
-                  <h3 className="mt-1.5 font-semibold">{title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{text}</p>
-                </li>
-              </Reveal>
+              <li key={title} className="h-full">
+                <Reveal delay={i * 0.07}>
+                  <div className="glass h-full rounded-xl p-5">
+                    <span className="data text-xs text-primary">STEP {i + 1}</span>
+                    <h3 className="mt-1.5 font-semibold">{title}</h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{text}</p>
+                  </div>
+                </Reveal>
+              </li>
             ))}
           </ol>
         </Section>
@@ -172,8 +174,8 @@ export default function LandingPage() {
         <Section id="explore" eyebrow="06 The observatory" title="Explore the Observatory">
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {NAV_ITEMS.map(({ href, label, description, icon: Icon }, i) => (
-              <Reveal key={href} delay={(i % 4) * 0.05}>
-                <li className="h-full">
+              <li key={href} className="h-full">
+                <Reveal delay={(i % 4) * 0.05}>
                   <Link href={href} className="glass group flex h-full flex-col rounded-xl p-4 transition-colors hover:border-primary/50">
                     <Icon className="size-5 text-primary" aria-hidden="true" />
                     <span className="mt-3 font-medium">{label}</span>
@@ -182,8 +184,8 @@ export default function LandingPage() {
                       Open <ArrowRight className="size-3" aria-hidden="true" />
                     </span>
                   </Link>
-                </li>
-              </Reveal>
+                </Reveal>
+              </li>
             ))}
           </ul>
         </Section>

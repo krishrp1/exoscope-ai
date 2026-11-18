@@ -105,3 +105,38 @@ Confusion matrix (rows true, columns predicted; FALSE POSITIVE, CONFIRMED): `[[3
 - Attribution axis labels overlapped the neighbouring plot.
 
 **Process note:** the eight pages were built in one pass and then verified in two groups, not verified after every two or three pages as the plan asked.
+
+## Phase 6: Polish, responsiveness, accessibility, testing (done)
+
+**Done**
+- Test suites green: backend 84 passed (pytest), frontend 23 passed / 4 files (vitest), `tsc --noEmit` clean, `eslint .` clean, `npm run build` succeeds (10 routes).
+- Accessibility tooling added: `frontend/scripts/axe-audit.cjs` (axe-core WCAG 2A + 2AA across 9 routes × 4 widths) and `frontend/scripts/keyboard-audit.cjs` (Tab order, skip link, reduced motion). `@axe-core/playwright` added to `package.json`.
+- axe result: **0 critical/serious violations** across all 36 route/width combinations after fixing the landing-page list markup.
+- Keyboard audit: every route has a skip link first in tab order; all focusable elements reachable by Tab; no focus traps.
+- `prefers-reduced-motion` honored in `globals.css`, `hero-transit.tsx` and `starfield.tsx`.
+- Horizontal overflow: 0 of 36 route/width combinations.
+- Loading skeletons, `Suspense` boundaries and shared `ErrorState`/`EmptyState`/`LoadingState` present on all feature pages.
+- Plotly components already lazy-loaded via `next/dynamic` with `ssr: false`; largest JS chunk 4.4 MB.
+
+**Bugs found and fixed this phase**
+- axe `list` / `listitem` violations on the landing page: `<Reveal>` was a direct child of `<ol>`/`<ul>`, and `<li>` wrapped the card. Moved the card into the `<li>` and the `<Reveal>` inside it (`app/page.tsx`, `components/pages/overview.tsx`).
+- Overview health list used bare `<li>`s inside a `<ul>`; changed to `<div role="listitem">` with `role="list"` on the `<ul>`.
+
+**Known issues carried forward**
+- No axe/lighthouse CI gate wired into CI; the audit is a manual script.
+- The training page shows 17 of 19 focusable elements by Tab because the two chart tooltips are not focusable — acceptable, but noted.
+- `next start` serves the production build; `scripts/start_frontend.sh` is the documented path.
+
+## Phase 7: Documentation and final report (in progress)
+
+**Done**
+- `README.md` written: overview, real metrics copied from `backend/artifacts/metrics.json`, data provenance, methodology, model, setup, API reference, usage, tests, layout, limitations. Verified every number in it matches `metrics.json`.
+- `docs/ARCHITECTURE.md` — three-tier system diagram, module table, model spec, frontend structure, deployment.
+- `docs/PIPELINE.md` — the 9-stage pipeline, upload path, and the leakage controls.
+- `docs/TALKING_POINTS.md` — seven interview talking points with the hardest questions and honest limitations.
+- `.env.example`, `.gitignore`, `scripts/setup_data.sh`, `scripts/start_backend.sh`, `scripts/start_frontend.sh` all present.
+
+**Remaining**
+- Final independent audit (4 verifier sub-agents): fresh-clone tester, acceptance auditor, integrity auditor, interview reviewer. Reports saved to `docs/verification/final-*.md`.
+- Phase 6 verifier gate (`docs/verification/phase-6.md`) — running.
+- Phase 7 commit + final report.

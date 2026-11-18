@@ -42,7 +42,7 @@ Criteria 2, 4 and 9 pass. Evidence from the re-check:
 - About 100 degenerate inline inputs returned only 200 or 422. The server log has 0 tracebacks and 0 status-500 responses.
 - Single-column, headerless, tab, semicolon and space-delimited files parse correctly.
 - A forced real 500 carries `access-control-allow-origin` for an allowed origin and not for a disallowed one.
-- The WebSocket accepts `http://localhost:3000`, `http://127.0.0.1:3000` and no-Origin clients, and rejects five disallowed variants.
+- The WebSocket accepts `http://localhost:3001`, `http://127.0.0.1:3000` and no-Origin clients, and rejects five disallowed variants.
 - 25 random test-split predictions equal `test_predictions.csv` to 1.5e-7 after the default model was retrained.
 
 Three new low-severity findings from round 2, all fixed afterwards: failure messages still exposed absolute paths for model directories outside the repo (now any absolute path is reduced to its file name); the upload preview echoed arbitrarily long cell values (now truncated to 40 characters); a header row of `nan,inf` was read as data (a header is now any row that is not entirely finite numbers).
