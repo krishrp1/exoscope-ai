@@ -1,0 +1,11 @@
+{
+  "index_to_class": {
+    "0": "FALSE POSITIVE",
+    "1": "CONFIRMED"
+  },
+  "source_column": "koi_disposition",
+  "positive_class": "CONFIRMED",
+  "excluded": {
+    "CANDIDATE": "unresolved disposition; not used for training or evaluation"
+  }
+}

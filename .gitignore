@@ -1,10 +1,17 @@
 # data and model weights (reproducible via scripts)
 data/*
 !data/.gitkeep
+!data/processed_views.npz
 backend/saved_models/*
-!backend/saved_models/.gitkeep
+!backend/saved_models/model.keras
+!backend/saved_models/model_config.json
+!backend/saved_models/preprocessing_config.json
+!backend/saved_models/label_mapping.json
 backend/artifacts/*
-!backend/artifacts/.gitkeep
+!backend/artifacts/metrics.json
+!backend/artifacts/training_history.json
+!backend/artifacts/test_predictions.csv
+!backend/artifacts/plots/*
 # python
 .venv/
 __pycache__/

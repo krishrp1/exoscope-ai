@@ -15,7 +15,3 @@ services:
         value: "10"
       - key: EXOSCOPE_LOG_LEVEL
         value: "INFO"
-    disk:
-      name: data
-      mountPath: /app/data
-      sizeGB: 2

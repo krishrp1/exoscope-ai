@@ -1,0 +1,178 @@
+{
+  "name": "exoscope_cnn1d",
+  "input_shape": [
+    256,
+    2
+  ],
+  "output_shape": [
+    2
+  ],
+  "total_params": 44642,
+  "layers": [
+    {
+      "name": "views",
+      "type": "InputLayer",
+      "output_shape": [
+        256,
+        2
+      ],
+      "params": 0
+    },
+    {
+      "name": "conv1",
+      "type": "Conv1D",
+      "output_shape": [
+        256,
+        32
+      ],
+      "params": 352
+    },
+    {
+      "name": "bn1",
+      "type": "BatchNormalization",
+      "output_shape": [
+        256,
+        32
+      ],
+      "params": 128
+    },
+    {
+      "name": "relu1",
+      "type": "ReLU",
+      "output_shape": [
+        256,
+        32
+      ],
+      "params": 0
+    },
+    {
+      "name": "pool1",
+      "type": "MaxPooling1D",
+      "output_shape": [
+        128,
+        32
+      ],
+      "params": 0
+    },
+    {
+      "name": "conv2",
+      "type": "Conv1D",
+      "output_shape": [
+        128,
+        64
+      ],
+      "params": 10304
+    },
+    {
+      "name": "bn2",
+      "type": "BatchNormalization",
+      "output_shape": [
+        128,
+        64
+      ],
+      "params": 256
+    },
+    {
+      "name": "relu2",
+      "type": "ReLU",
+      "output_shape": [
+        128,
+        64
+      ],
+      "params": 0
+    },
+    {
+      "name": "pool2",
+      "type": "MaxPooling1D",
+      "output_shape": [
+        64,
+        64
+      ],
+      "params": 0
+    },
+    {
+      "name": "conv3",
+      "type": "Conv1D",
+      "output_shape": [
+        64,
+        128
+      ],
+      "params": 24704
+    },
+    {
+      "name": "bn3",
+      "type": "BatchNormalization",
+      "output_shape": [
+        64,
+        128
+      ],
+      "params": 512
+    },
+    {
+      "name": "relu3",
+      "type": "ReLU",
+      "output_shape": [
+        64,
+        128
+      ],
+      "params": 0
+    },
+    {
+      "name": "gap",
+      "type": "GlobalAveragePooling1D",
+      "output_shape": [
+        128
+      ],
+      "params": 0
+    },
+    {
+      "name": "dense",
+      "type": "Dense",
+      "output_shape": [
+        64
+      ],
+      "params": 8256
+    },
+    {
+      "name": "dropout",
+      "type": "Dropout",
+      "output_shape": [
+        64
+      ],
+      "params": 0
+    },
+    {
+      "name": "probabilities",
+      "type": "Dense",
+      "output_shape": [
+        2
+      ],
+      "params": 130
+    }
+  ],
+  "train_params": {
+    "epochs": 2,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "dropout": 0.3,
+    "early_stopping_patience": 10,
+    "lr_patience": 4,
+    "lr_factor": 0.5,
+    "min_lr": 1e-05,
+    "augment": true,
+    "noise_std": 0.05,
+    "seed": 42,
+    "batch_event_every": 5
+  },
+  "class_names": [
+    "FALSE POSITIVE",
+    "CONFIRMED"
+  ],
+  "plots": {
+    "accuracy_curve": "accuracy_curve.png",
+    "loss_curve": "loss_curve.png",
+    "roc_curve": "roc_curve.png",
+    "pr_curve": "pr_curve.png",
+    "confusion_matrix": "confusion_matrix.png"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "preprocess": {
+    "n_bins": 256,
+    "local_half_width_durations": 4.0,
+    "gap_days": 0.75,
+    "detrend_window_durations": 4.0,
+    "detrend_min_window_days": 1.0,
+    "detrend_max_window_days": 6.0,
+    "clip_sigma_upper": 5.0,
+    "min_points": 200,
+    "min_segment_points": 10,
+    "version": 1
+  },
+  "standardizer": {
+    "mean": [
+      -0.014068063348531723,
+      -0.039975427091121674
+    ],
+    "std": [
+      0.2060646116733551,
+      0.276506632566452
+    ],
+    "n_fit_samples": 2902
+  },
+  "standardizer_fitted_on": "training split only"
+}

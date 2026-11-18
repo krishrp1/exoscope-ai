@@ -1,0 +1,41 @@
+{
+  "history": {
+    "accuracy": [
+      0.7884217500686646,
+      0.8342522382736206
+    ],
+    "loss": [
+      0.4506317675113678,
+      0.36527130007743835
+    ],
+    "val_accuracy": [
+      0.7335526347160339,
+      0.5756579041481018
+    ],
+    "val_loss": [
+      0.5744945406913757,
+      0.6577721238136292
+    ],
+    "learning_rate": [
+      0.0010000000474974513,
+      0.0010000000474974513
+    ]
+  },
+  "epochs_run": 2,
+  "best_epoch": 1,
+  "params": {
+    "epochs": 2,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "dropout": 0.3,
+    "early_stopping_patience": 10,
+    "lr_patience": 4,
+    "lr_factor": 0.5,
+    "min_lr": 1e-05,
+    "augment": true,
+    "noise_std": 0.05,
+    "seed": 42,
+    "batch_event_every": 5
+  },
+  "trained_at": "2026-11-18T10:21:58+00:00"
+}
