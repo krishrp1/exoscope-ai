@@ -47,8 +47,11 @@ export const STAGE_LABEL: Record<string, string> = {
   preparing_results: "Preparing results",
 };
 
+/** Chart colours. Same values as the CSS tokens in globals.css, so charts and badges always match. */
+export const PALETTE = { primary: "#2dd4bf", blue: "#60a5fa", success: "#34d399", warning: "#fbbf24", danger: "#f87171" };
+
 export const CLASS_COLOR: Record<string, string> = {
-  CONFIRMED: "#4ade80",
-  "FALSE POSITIVE": "#fbbf24",
-  CANDIDATE: "#a78bfa",
+  CONFIRMED: PALETTE.success,
+  "FALSE POSITIVE": PALETTE.warning,
+  CANDIDATE: PALETTE.blue,
 };

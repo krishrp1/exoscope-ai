@@ -31,21 +31,32 @@ function Brand({ compact = false }: { compact?: boolean }) {
 function NavLinks({ collapsed = false, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
-    <nav aria-label="Observatory sections" className="flex flex-col gap-1">
-      {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+    <nav aria-label="Observatory sections" className="flex flex-col gap-0.5">
+      {NAV_ITEMS.map((item, i) => {
+        const { href, label, icon: Icon, group } = item;
+        const primary = "primary" in item;
         const active = href === "/observatory" ? pathname === href : pathname.startsWith(href);
+        const newGroup = i === 0 || NAV_ITEMS[i - 1].group !== group;
         return (
-          <Link key={href} href={href} onClick={onNavigate} aria-current={active ? "page" : undefined}
-                title={collapsed ? label : undefined}
-                className={cn(
-                  "group flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors",
-                  active ? "bg-primary/12 text-primary shadow-[inset_2px_0_0_var(--primary)]"
-                         : "text-muted-foreground hover:bg-accent hover:text-foreground",
-                  collapsed && "justify-center px-0",
-                )}>
-            <Icon className="size-4.5 shrink-0" aria-hidden="true" />
-            <span className={cn(collapsed && "sr-only")}>{label}</span>
-          </Link>
+          <div key={href}>
+            {newGroup && (collapsed
+              ? i > 0 && <hr className="my-2 border-border" />
+              : <p className={cn("px-2.5 pb-1 text-[11px] font-medium tracking-wider text-muted-foreground/80 uppercase", i > 0 && "mt-4")}>{group}</p>)}
+            <Link href={href} onClick={onNavigate} aria-current={active ? "page" : undefined}
+                  title={collapsed ? label : undefined}
+                  className={cn(
+                    "group flex min-h-10 items-center gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors",
+                    active ? "bg-primary/12 text-primary shadow-[inset_2px_0_0_var(--primary)]"
+                           : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                    collapsed && "justify-center px-0",
+                  )}>
+              <Icon className="size-4.5 shrink-0" aria-hidden="true" />
+              <span className={cn("flex-1", collapsed && "sr-only")}>{label}</span>
+              {primary && !collapsed && !active && (
+                <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-medium text-primary">Try it</span>
+              )}
+            </Link>
+          </div>
         );
       })}
     </nav>

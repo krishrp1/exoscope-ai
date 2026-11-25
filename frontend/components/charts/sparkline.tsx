@@ -1,5 +1,7 @@
 /** Tiny inline line chart for previews. Pure SVG, no interaction. */
-export function Sparkline({ values, color = "#38bdf8", height = 44, ariaLabel }: {
+import { PALETTE } from "@/lib/format";
+
+export function Sparkline({ values, color = PALETTE.primary, height = 44, ariaLabel }: {
   values: number[]; color?: string; height?: number; ariaLabel: string;
 }) {
   if (values.length < 2) return null;

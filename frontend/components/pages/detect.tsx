@@ -64,7 +64,9 @@ export function DetectPage() {
 
   // Deep link: /observatory/detect?id=K00002.01 preselects that sample.
   const linked = useApi(() => api.sample(initialId as string, { max_points: 1, include_views: false }), [initialId], !!initialId);
-  const sample = picked ?? linked.data?.sample ?? null;
+  // With no deep link, start on a held-out confirmed planet so there is something to classify at once.
+  const fallback = useApi(() => api.samples({ disposition: "CONFIRMED", split: "test", page_size: 1 }), [], !initialId);
+  const sample = picked ?? linked.data?.sample ?? fallback.data?.items[0] ?? null;
 
   const finish = (r: Prediction | null) => {
     if (!r) return;

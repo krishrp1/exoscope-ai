@@ -12,7 +12,7 @@ import { Sparkline } from "@/components/charts/sparkline";
 import { buttonVariants } from "@/components/ui/button";
 import { useApi } from "@/hooks/use-api";
 import { api } from "@/lib/api";
-import { CLASS_COLOR, fmt, fmtDate, fmtInt, fmtPct } from "@/lib/format";
+import { CLASS_COLOR, fmt, fmtDate, fmtInt, fmtPct, PALETTE } from "@/lib/format";
 import type { DatasetStats, Sample } from "@/types/api";
 
 const CLASSES = ["CONFIRMED", "FALSE POSITIVE", "CANDIDATE"];
@@ -59,8 +59,8 @@ function ClassDistribution({ stats }: { stats: DatasetStats }) {
   }));
   return (
     <ClassBars rows={rows} ariaLabel="Signals per class: full catalog compared with signals that have a fetched light curve"
-               series={[{ key: "catalog", label: "KOI catalog", color: "#38bdf8" },
-                        { key: "with_curves", label: "With light curve", color: "#a78bfa" }]} />
+               series={[{ key: "catalog", label: "KOI catalog", color: PALETTE.blue },
+                        { key: "with_curves", label: "With light curve", color: PALETTE.primary }]} />
   );
 }
 

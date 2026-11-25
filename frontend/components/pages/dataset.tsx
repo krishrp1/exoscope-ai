@@ -241,7 +241,7 @@ export function DatasetPage() {
               </span>
               <div className="flex items-center gap-2">
                 <label htmlFor="ds-size">Rows</label>
-                <select id="ds-size" className={cn(selectClass, "h-7 text-xs")} value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}>
+                <select id="ds-size" className={cn(selectClass, "h-8 text-xs")} value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}>
                   {[10, 15, 25, 50].map((n) => <option key={n} value={n}>{n}</option>)}
                 </select>
                 <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>Previous</Button>

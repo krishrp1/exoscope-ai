@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import type { Sample } from "@/types/api";
 
 export const selectClass =
-  "h-8 rounded-lg border border-input bg-background-secondary px-2 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring";
+  "select-field h-9 min-w-32 rounded-lg border border-input px-2.5 text-sm text-foreground";
 
 export function useDebounced<T>(value: T, ms = 300): T {
   const [debounced, setDebounced] = useState(value);

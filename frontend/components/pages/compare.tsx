@@ -15,11 +15,11 @@ import { METHOD_SHORT } from "@/components/predict/prediction-result";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useAction, useApi } from "@/hooks/use-api";
 import { api } from "@/lib/api";
-import { CLASS_COLOR, fmt, SPLIT_LABEL } from "@/lib/format";
+import { CLASS_COLOR, fmt, PALETTE, SPLIT_LABEL } from "@/lib/format";
 import type { BatchItem, Sample } from "@/types/api";
 
 const MAX_SIGNALS = 4;
-const SERIES_COLORS = ["#38bdf8", "#a78bfa", "#4ade80", "#fbbf24"];
+const SERIES_COLORS = [PALETTE.primary, PALETTE.blue, PALETTE.success, PALETTE.warning];
 type Layout = "side" | "shared";
 
 export function ComparePage() {

@@ -9,7 +9,7 @@ import { Disclaimer, KeyValue, Panel } from "@/components/common/panel";
 import { Segmented } from "@/components/common/toggle";
 import { ViewsPlot } from "@/components/charts/views-plot";
 import { AnalysisStages } from "@/components/predict/stages";
-import { CLASS_COLOR, fmt, fmtInt, SPLIT_LABEL } from "@/lib/format";
+import { CLASS_COLOR, fmt, fmtInt, SPLIT_LABEL, PALETTE } from "@/lib/format";
 import type { Explanation, Prediction } from "@/types/api";
 
 export const METHOD_SHORT: Record<string, string> = {
@@ -28,7 +28,7 @@ export function ProbabilityBars({ probabilities }: { probabilities: Record<strin
             <span className="data">{fmt(p, 4)}</span>
           </div>
           <div className="mt-1 h-2 overflow-hidden rounded-full bg-muted" aria-hidden="true">
-            <div className="h-full rounded-full" style={{ width: `${p * 100}%`, background: CLASS_COLOR[name] ?? "#38bdf8" }} />
+            <div className="h-full rounded-full" style={{ width: `${p * 100}%`, background: CLASS_COLOR[name] ?? PALETTE.primary }} />
           </div>
         </li>
       ))}
