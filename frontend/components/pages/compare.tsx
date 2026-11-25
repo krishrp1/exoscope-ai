@@ -2,7 +2,7 @@
 
 import { Plus, RotateCcw, X } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { DispositionBadge, ProvenanceBadge } from "@/components/common/badges";
 import { PageHeader } from "@/components/common/page-header";
@@ -31,6 +31,17 @@ export function ComparePage() {
   const ids = selected.map((s) => s.id);
   const batch = useApi(() => api.predictBatch(ids, true), [ids.join(",")], ids.length >= 2);
   const example = useAction(async (disposition: string) => api.samples({ disposition, split: "test", page_size: 25 }));
+
+  // Start with one confirmed and one false-positive test signal so a first-time visitor sees a comparison at once.
+  useEffect(() => {
+    let cancelled = false;
+    const first = (disposition: string) =>
+      api.samples({ disposition, split: "test", page_size: 1 }).then((r) => r.items[0]);
+    Promise.all([first("CONFIRMED"), first("FALSE POSITIVE")])
+      .then((pair) => { if (!cancelled) setSelected((cur) => (cur.length ? cur : pair.filter(Boolean))); })
+      .catch(() => { /* the sample list below reports the backend error */ });
+    return () => { cancelled = true; };
+  }, []);
 
   const add = (s: Sample) => {
     setNotice(null);
