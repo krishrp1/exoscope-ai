@@ -23,6 +23,7 @@ export interface Health {
   model_loaded: boolean;
   n_samples: number;
   training_enabled: boolean;
+  max_train_epochs: number;
   training_state: string;
   dataset_error: string | null;
 }

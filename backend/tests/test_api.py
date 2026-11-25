@@ -412,3 +412,13 @@ def test_recent_predictions_hide_upload_filenames(client):
     client.post("/api/predict/upload", files={"file": ("secret-name.csv", csv, "text/csv")},
                 data={"period": "3", "t0": "0.5", "duration_hours": "3"})
     assert "secret-name" not in str(client.get("/api/predictions/recent").json())
+
+
+def test_training_epoch_cap_and_switch(client, monkeypatch):
+    from backend.api.settings import get_settings
+    s = get_settings()
+    monkeypatch.setattr(s, "max_train_epochs", 5)
+    r = client.post("/api/training/start", json={"epochs": 6})
+    assert r.status_code == 422 and r.json()["error"]["code"] == "too_many_epochs"
+    monkeypatch.setattr(s, "training_enabled", False)
+    assert client.post("/api/training/start", json={"epochs": 1}).status_code == 403

@@ -55,6 +55,7 @@ def health() -> dict:
         "model_loaded": state.predictor is not None,
         "n_samples": int(len(state.samples)),
         "training_enabled": get_settings().training_enabled,
+        "max_train_epochs": get_settings().max_train_epochs,
         "training_state": state.training.status.get("state"),
         "dataset_error": state.dataset_error,
     }

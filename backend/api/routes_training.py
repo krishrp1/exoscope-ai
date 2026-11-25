@@ -26,6 +26,9 @@ def _require_training_enabled() -> None:
 def start_training(req: TrainingStartRequest | None = None) -> dict:
     _require_training_enabled()
     req = req or TrainingStartRequest()
+    cap = get_settings().max_train_epochs
+    if req.epochs > cap:
+        raise ApiError(422, "too_many_epochs", f"This server allows at most {cap} epochs per run.")
     params = TrainParams(epochs=req.epochs, batch_size=req.batch_size, learning_rate=req.learning_rate,
                          dropout=req.dropout, augment=req.augment)
     try:

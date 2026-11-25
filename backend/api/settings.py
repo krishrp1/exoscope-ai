@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     cors_origin_regex: str = r"https://exoscope-ai[a-z0-9-]*\.vercel\.app"
     # Free hosting cannot retrain; set EXOSCOPE_TRAINING_ENABLED=false there so visitors cannot overwrite the model.
     training_enabled: bool = True
+    max_train_epochs: int = 300  # lower this on small instances; a run must finish inside the memory/time budget
     max_upload_mb: float = 10.0
     max_upload_rows: int = 500_000
     max_batch_size: int = 25

@@ -61,11 +61,14 @@ function ProgressBar({ label, value, max, text }: { label: string; value: number
 export function TrainingPage() {
   const stream = useTrainingStream();
   const saved = useApi(api.trainingHistory);
-  const [epochs, setEpochs] = useState("40");
+  const [epochsInput, setEpochs] = useState<string | null>(null); // null = untouched, show the default
+
   const [batchSize, setBatchSize] = useState("64");
   const [learningRate, setLearningRate] = useState("0.001");
   const health = useApi(api.health);
-  const trainingOff = health.data?.training_enabled === false; // free hosting: saved results only
+  const trainingOff = health.data?.training_enabled === false;
+  const maxEpochs = health.data?.max_train_epochs ?? 300; // small hosts cap the run length
+  const epochs = epochsInput ?? String(Math.min(40, maxEpochs));
   const start = useAction(api.startTraining);
   const stop = useAction(api.stopTraining);
 
@@ -79,7 +82,7 @@ export function TrainingPage() {
 
   const params = { epochs: Number(epochs), batch_size: Number(batchSize), learning_rate: Number(learningRate) };
   const paramError =
-    !Number.isInteger(params.epochs) || params.epochs < 1 || params.epochs > 300 ? "Epochs must be a whole number from 1 to 300."
+    !Number.isInteger(params.epochs) || params.epochs < 1 || params.epochs > maxEpochs ? `Epochs must be a whole number from 1 to ${maxEpochs}.`
     : !Number.isInteger(params.batch_size) || params.batch_size < 8 || params.batch_size > 512 ? "Batch size must be a whole number from 8 to 512."
     : !(params.learning_rate > 0 && params.learning_rate <= 0.1) ? "Learning rate must be above 0 and at most 0.1."
     : null;
@@ -122,7 +125,7 @@ export function TrainingPage() {
         <div className="space-y-5">
           <Panel title="Run control">
             <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); if (!paramError && !active) void start.run(params).then((r) => { if (r) stream.reconnect(); }); }}>
-              {[["tr-epochs", "Maximum epochs", epochs, setEpochs, "1 to 300; early stopping may end sooner"],
+              {[["tr-epochs", "Maximum epochs", epochs, setEpochs, `1 to ${maxEpochs}; early stopping may end sooner`],
                 ["tr-batch", "Batch size", batchSize, setBatchSize, "8 to 512"],
                 ["tr-lr", "Learning rate", learningRate, setLearningRate, "Adam, halved when validation loss stalls"]].map(([id, label, value, set, hint]) => (
                 <div key={id as string}>
