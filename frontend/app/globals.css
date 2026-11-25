@@ -118,6 +118,14 @@
   outline-offset: 2px;
 }
 
+/* The command palette shows focus on its frame; the global outline would draw a box inside it. */
+.command-palette input:focus-visible {
+  outline: none !important;
+}
+.command-palette:focus-within > div {
+  border-color: var(--ring);
+}
+
 @layer components {
   /* The one card surface: solid fill and a hairline border. No shadows or blur; depth comes from the fill steps. */
   .surface {

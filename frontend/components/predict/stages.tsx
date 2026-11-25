@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "motion/react";
 import { Check, Loader2 } from "lucide-react";
 
 import { fmt, STAGE_LABEL } from "@/lib/format";

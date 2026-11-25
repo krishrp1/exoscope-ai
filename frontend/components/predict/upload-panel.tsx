@@ -1,19 +1,18 @@
 "use client";
 
-import { FileUp, Play, X } from "lucide-react";
-import { useId, useRef, useState } from "react";
+import { Play } from "lucide-react";
+import { useId, useState } from "react";
 
 import { selectClass } from "@/components/common/sample-picker";
-import { ErrorState, LoadingState } from "@/components/common/states";
+import FileUpload, { type UploadHelpers } from "@/components/kokonutui/file-upload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useAction } from "@/hooks/use-api";
 import { api, type UploadOptions } from "@/lib/api";
 import { fmtInt } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { UploadInspection } from "@/types/api";
 
-const MAX_MB = 10;
+const MAX_MB = 2; // matches EXOSCOPE_MAX_UPLOAD_MB on the hosted backend
 const ACCEPT = ".csv,.txt,.tsv,.dat";
 
 function parseNumber(text: string): number | null | "invalid" {
@@ -27,49 +26,28 @@ export function UploadPanel({ onRun, running, modelReady }: {
   onRun: (file: File, options: UploadOptions) => void; running: boolean; modelReady: boolean;
 }) {
   const uid = useId();
-  const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [inspection, setInspection] = useState<UploadInspection | null>(null);
-  const [localError, setLocalError] = useState<string | null>(null);
-  const [dragging, setDragging] = useState(false);
   const [timeColumn, setTimeColumn] = useState("");
   const [fluxColumn, setFluxColumn] = useState("");
   const [period, setPeriod] = useState("");
   const [t0, setT0] = useState("");
   const [duration, setDuration] = useState("");
-  const inspect = useAction(api.inspectUpload);
 
   const reset = () => {
     setFile(null);
     setInspection(null);
-    setLocalError(null);
-    inspect.clearError();
-    if (inputRef.current) inputRef.current.value = "";
   };
 
-  const accept = async (f: File | undefined) => {
-    if (!f) return;
+  /** Sends the file for inspection. Throwing shows the message, with a retry button, on the file's row. */
+  const check = async (f: File, { signal }: UploadHelpers) => {
     reset();
-    const ext = f.name.slice(f.name.lastIndexOf(".")).toLowerCase();
-    if (!ACCEPT.split(",").includes(ext)) {
-      setLocalError(`"${f.name}" is not a supported file type. Use ${ACCEPT.replaceAll(",", ", ")}.`);
-      return;
-    }
-    if (f.size === 0) {
-      setLocalError("The file is empty.");
-      return;
-    }
-    if (f.size > MAX_MB * 1024 * 1024) {
-      setLocalError(`The file is ${(f.size / 1e6).toFixed(1)} MB. The limit is ${MAX_MB} MB.`);
-      return;
-    }
+    const result = await api.inspectUpload(f);
+    if (signal.aborted) return; // removed while the backend was still reading it
     setFile(f);
-    const result = await inspect.run(f);
-    if (result) {
-      setInspection(result);
-      setTimeColumn(result.suggested_mapping.time ?? "");
-      setFluxColumn(result.suggested_mapping.flux ?? "");
-    }
+    setInspection(result);
+    setTimeColumn(result.suggested_mapping.time ?? "");
+    setFluxColumn(result.suggested_mapping.flux ?? "");
   };
 
   const numbers = { period: parseNumber(period), t0: parseNumber(t0), duration: parseNumber(duration) };
@@ -85,20 +63,9 @@ export function UploadPanel({ onRun, running, modelReady }: {
 
   return (
     <div className="space-y-4">
-      <div
-        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={(e) => { e.preventDefault(); setDragging(false); void accept(e.dataTransfer.files[0]); }}
-        className={cn("rounded-xl border-2 border-dashed px-4 py-7 text-center transition-colors",
-                      dragging ? "border-primary bg-primary/10" : "border-border")}>
-        <FileUp className="mx-auto size-7 text-primary" aria-hidden="true" />
-        <p className="mt-2 text-sm font-medium">Drag a light-curve CSV here</p>
-        <p className="mt-1 text-xs text-muted-foreground">or</p>
-        <label htmlFor={`${uid}-file`} className="sr-only">Choose a light-curve CSV file</label>
-        <input ref={inputRef} id={`${uid}-file`} type="file" accept={ACCEPT} className="sr-only"
-               onChange={(e) => void accept(e.target.files?.[0])} />
-        <Button variant="outline" size="sm" className="mt-2" onClick={() => inputRef.current?.click()}>Choose a file</Button>
-      </div>
+      <FileUpload multiple={false} maxFiles={1} maxFileSize={MAX_MB * 1024 * 1024} acceptedFileTypes={ACCEPT.split(",")}
+                  validateFile={(f) => (f.size === 0 ? { code: "EMPTY_FILE", message: "The file is empty" } : null)}
+                  onUpload={check} onFileRemove={reset} />
 
       <details className="rounded-lg border border-border px-3 py-2 text-sm">
         <summary className="cursor-pointer font-medium">File format</summary>
@@ -112,18 +79,13 @@ export function UploadPanel({ onRun, running, modelReady }: {
         <pre className="data mt-2 overflow-x-auto rounded bg-background px-3 py-2 text-xs text-muted-foreground">time,flux{"\n"}131.5124,10432.1{"\n"}131.5328,10431.7</pre>
       </details>
 
-      {localError && <ErrorState title="This file was not accepted" message={localError} />}
-      {inspect.error && <ErrorState title="The backend rejected this file" message={inspect.error.message} />}
-      {inspect.loading && <LoadingState label="Validating and parsing the file" rows={2} />}
-
       {file && inspection && (
         <div className="space-y-4 rounded-xl border border-border p-3">
-          <div className="flex items-center justify-between gap-2">
+          <div>
             <p className="min-w-0 text-sm">
               <span className="data block truncate font-medium">{file.name}</span>
               <span className="text-xs text-muted-foreground">{fmtInt(inspection.n_rows)} rows · {inspection.columns.length} columns · {(file.size / 1024).toFixed(0)} kB</span>
             </p>
-            <Button variant="ghost" size="icon-sm" onClick={reset} aria-label="Remove file"><X aria-hidden="true" /></Button>
           </div>
 
           <fieldset className="grid gap-3 sm:grid-cols-2">

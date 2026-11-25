@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDown, ArrowUp, ArrowUpDown, LineChart, Radar, Search, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Download, LineChart, Radar, Search, X } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
 
@@ -13,8 +13,9 @@ import { ClassBars } from "@/components/charts/class-bars";
 import { ViewsPlot } from "@/components/charts/views-plot";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useApi } from "@/hooks/use-api";
-import { api } from "@/lib/api";
+import { useAction, useApi } from "@/hooks/use-api";
+import { api, type SampleQuery } from "@/lib/api";
+import { toCsv } from "@/lib/csv";
 import { CLASS_COLOR, fmt, fmtInt, fmtPct } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Sample } from "@/types/api";
@@ -31,6 +32,24 @@ const COLUMNS: { key: string; label: string; numeric?: boolean; hideBelow?: "sm"
   { key: "split", label: "Split", hideBelow: "sm" },
 ];
 const HIDE = { sm: "hidden sm:table-cell", md: "hidden md:table-cell", lg: "hidden lg:table-cell" };
+const CSV_COLUMNS: (keyof Sample & string)[] = ["kepoi_name", "kepid", "kepler_name", "koi_disposition", "split",
+  "koi_period", "koi_time0bk", "koi_duration", "koi_depth", "koi_prad", "koi_model_snr", "koi_kepmag", "koi_teq",
+  "koi_steff", "ra", "dec"];
+
+/** Every signal matching the current filters (not only the visible page), saved as a CSV file. */
+async function downloadCsv(query: SampleQuery) {
+  const rows: Sample[] = [];
+  for (let page = 1, pages = 1; page <= pages; page++) {
+    const result = await api.samples({ ...query, page, page_size: 200 }); // 200 is the API maximum
+    rows.push(...result.items);
+    pages = result.pages;
+  }
+  const url = URL.createObjectURL(new Blob([toCsv(rows, CSV_COLUMNS)], { type: "text/csv;charset=utf-8" }));
+  const link = Object.assign(document.createElement("a"), { href: url, download: "exoscope-signals.csv" });
+  link.click();
+  URL.revokeObjectURL(url);
+  return rows.length;
+}
 
 function cell(sample: Sample, key: string) {
   switch (key) {
@@ -120,6 +139,7 @@ export function DatasetPage() {
   const list = useApi(() => api.samples({ search: debounced, disposition, split, sort, order, page, page_size: pageSize }),
                       [debounced, disposition, split, sort, order, page, pageSize]);
   const s = stats.data;
+  const csv = useAction(downloadCsv);
 
   const toggleSort = (key: string) => {
     if (sort === key) setOrder((o) => (o === "asc" ? "desc" : "asc"));
@@ -155,6 +175,10 @@ export function DatasetPage() {
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.7fr_1fr]">
         <Panel title="Signals" bodyClassName="p-0 sm:p-0"
+               actions={<Button variant="outline" size="sm" disabled={csv.loading || !list.data?.total}
+                                onClick={() => void csv.run({ search: debounced, disposition, split, sort, order })}>
+                          <Download aria-hidden="true" /> {csv.loading ? "Preparing" : "Download CSV"}
+                        </Button>}
                description={list.data ? `${fmtInt(list.data.total)} match${list.data.total === 1 ? "es" : ""}` : undefined}>
           <div className="flex flex-wrap items-center gap-2 border-b border-border p-3 sm:px-5">
             <div className="relative min-w-44 flex-1">
@@ -184,6 +208,8 @@ export function DatasetPage() {
             )}
           </div>
 
+          {csv.error && <div className="p-4"><ErrorState title="The CSV could not be prepared" message={csv.error.message} /></div>}
+
           {list.error ? <div className="p-4"><ErrorState message={list.error.message} onRetry={list.refetch} /></div>
             : !list.data ? <div className="p-4"><LoadingState label="Loading signals" rows={6} /></div>
             : list.data.items.length === 0 ? (
@@ -192,17 +218,17 @@ export function DatasetPage() {
                             action={filtersActive ? <Button variant="outline" size="sm" onClick={clearFilters}>Clear filters</Button> : undefined} />
               </div>
             ) : (
-              <div className={cn("overflow-x-auto", list.loading && "opacity-60")} aria-busy={list.loading}>
+              <div className={cn("max-h-[70vh] overflow-auto", list.loading && "opacity-60")} aria-busy={list.loading}>
                 <table className="w-full text-sm">
                   <caption className="sr-only">Dataset signals. Select a row to see target detail.</caption>
                   <thead>
-                    <tr className="border-b border-border text-left text-xs text-muted-foreground">
+                    <tr className="text-left text-xs text-muted-foreground">
                       {COLUMNS.map((c) => {
                         const active = sort === c.key;
                         const Icon = !active ? ArrowUpDown : order === "asc" ? ArrowUp : ArrowDown;
                         return (
                           <th key={c.key} scope="col" aria-sort={active ? (order === "asc" ? "ascending" : "descending") : "none"}
-                              className={cn("px-3 py-2 font-medium first:pl-5", c.numeric && "text-right", c.hideBelow && HIDE[c.hideBelow])}>
+                              className={cn("sticky top-0 z-10 border-b border-border bg-card px-3 py-2 font-medium first:left-0 first:z-20 first:pl-5", c.numeric && "text-right", c.hideBelow && HIDE[c.hideBelow])}>
                             <button type="button" onClick={() => toggleSort(c.key)}
                                     className={cn("inline-flex items-center gap-1 rounded hover:text-foreground", active && "text-primary")}>
                               {c.label} <Icon className="size-3" aria-hidden="true" />
@@ -219,10 +245,13 @@ export function DatasetPage() {
                         <tr key={item.id} tabIndex={0} aria-selected={isSelected}
                             onClick={() => select(item)}
                             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(item); } }}
-                            className={cn("cursor-pointer border-b border-border/60 transition-colors hover:bg-accent/60 focus-visible:bg-accent/60",
+                            className={cn("group cursor-pointer border-b border-border/60 transition-colors hover:bg-accent/60 focus-visible:bg-accent/60",
                                           isSelected && "bg-primary/10")}>
                           {COLUMNS.map((c) => (
-                            <td key={c.key} className={cn("px-3 py-2 first:pl-5", c.numeric && "data text-right", c.hideBelow && HIDE[c.hideBelow])}>
+                            // The pinned column needs an opaque fill, mixed to match the row's hover and selected tints.
+                            <td key={c.key} className={cn("px-3 py-2 first:sticky first:left-0 first:bg-card first:pl-5 group-hover:first:bg-accent group-focus-visible:first:bg-accent",
+                                                          isSelected && "first:bg-[color-mix(in_srgb,var(--primary)_10%,var(--card))]",
+                                                          c.numeric && "data text-right", c.hideBelow && HIDE[c.hideBelow])}>
                               {cell(item, c.key)}
                             </td>
                           ))}

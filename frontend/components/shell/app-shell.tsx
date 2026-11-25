@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 
+import { CommandPalette } from "@/components/shell/command-palette";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useApi } from "@/hooks/use-api";
@@ -170,6 +171,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <p className="truncate text-sm font-medium">{current?.label ?? "Observatory"}</p>
             <p className="hidden truncate text-xs text-muted-foreground sm:block">{current?.description}</p>
           </div>
+          <CommandPalette />
           <BackendStatus />
         </header>
         <main id="main" tabIndex={-1} className="mx-auto w-full max-w-[1500px] flex-1 px-4 py-6 outline-none sm:px-6 lg:px-8">

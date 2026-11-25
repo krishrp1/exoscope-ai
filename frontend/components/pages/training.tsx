@@ -1,12 +1,13 @@
 "use client";
 
-import { Play, RefreshCw, Square, Wifi, WifiOff } from "lucide-react";
+import { RefreshCw, Square, Wifi, WifiOff } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { PageHeader } from "@/components/common/page-header";
 import { KeyValue, Panel, Stat } from "@/components/common/panel";
 import { EmptyState, ErrorState, LoadingState } from "@/components/common/states";
 import { AccuracyChart, LearningRateChart, LossChart } from "@/components/charts/history-charts";
+import HoldButton from "@/components/kokonutui/hold-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAction, useApi } from "@/hooks/use-api";
@@ -124,7 +125,7 @@ export function TrainingPage() {
       <div className="grid gap-6 xl:grid-cols-[22rem_1fr]">
         <div className="space-y-6">
           <Panel title="Run control">
-            <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); if (!paramError && !active) void start.run(params).then((r) => { if (r) stream.reconnect(); }); }}>
+            <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
               {[["tr-epochs", "Maximum epochs", epochs, setEpochs, `1 to ${maxEpochs}; early stopping may end sooner`],
                 ["tr-batch", "Batch size", batchSize, setBatchSize, "8 to 512"],
                 ["tr-lr", "Learning rate", learningRate, setLearningRate, "Adam, halved when validation loss stalls"]].map(([id, label, value, set, hint]) => (
@@ -138,9 +139,11 @@ export function TrainingPage() {
               {trainingOff && <p className="text-xs text-warning">Training is disabled on this deployment. The saved run below is real; retrain locally.</p>}
               {paramError && <p role="alert" className="text-xs text-destructive">{paramError}</p>}
               <div className="flex flex-wrap gap-2 pt-1">
-                <Button type="submit" disabled={trainingOff || active || !!paramError || start.loading || stream.connection !== "open"}>
-                  <Play aria-hidden="true" /> {active ? "Training in progress" : "Start training"}
-                </Button>
+                {/* A finished run replaces the live model, so starting one takes a deliberate press-and-hold. */}
+                <HoldButton variant="primary" disabled={trainingOff || active || !!paramError || start.loading || stream.connection !== "open"}
+                            onHoldComplete={() => void start.run(params).then((r) => { if (r) stream.reconnect(); })}>
+                  {active ? "Training in progress" : "Hold to start training"}
+                </HoldButton>
                 <Button type="button" variant="destructive" disabled={state !== "running" || stop.loading} onClick={() => void stop.run()}>
                   <Square aria-hidden="true" /> {state === "stopping" ? "Stopping" : "Stop safely"}
                 </Button>

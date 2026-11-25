@@ -13,6 +13,7 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "scripts/**", // standalone CommonJS audit scripts
+    "components/kokonutui/**", // vendored from kokonutui.com (MIT), kept close to upstream
   ]),
 ]);
 
