@@ -142,7 +142,7 @@ export function DatasetPage() {
                   description="Signals from the Kaggle KOI catalog that have a fetched Kepler light curve. Search, filter, sort, and open any target."
                   actions={<><ProvenanceBadge kind="kaggle" /><ProvenanceBadge kind="mast" /></>} />
 
-      {stats.error && <ErrorState className="mb-5" title="Dataset statistics are unavailable" message={stats.error.message} onRetry={stats.refetch} />}
+      {stats.error && <ErrorState className="mb-6" title="Dataset statistics are unavailable" message={stats.error.message} onRetry={stats.refetch} />}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Stat label="Signals in the catalog" value={s ? fmtInt(s.catalog.n_koi) : "…"} hint={s ? `${s.catalog.n_columns} columns, ${fmtInt(s.catalog.n_targets)} stars` : undefined} />
         <Stat label="Signals with a light curve" value={s ? fmtInt(s.light_curves.n_koi_available) : "…"} tone="primary"
@@ -153,7 +153,7 @@ export function DatasetPage() {
               hint="CONFIRMED vs FALSE POSITIVE in the full catalog" />
       </div>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-[1.7fr_1fr]">
+      <div className="mt-6 grid gap-6 xl:grid-cols-[1.7fr_1fr]">
         <Panel title="Signals" bodyClassName="p-0 sm:p-0"
                description={list.data ? `${fmtInt(list.data.total)} match${list.data.total === 1 ? "es" : ""}` : undefined}>
           <div className="flex flex-wrap items-center gap-2 border-b border-border p-3 sm:px-5">
@@ -252,7 +252,7 @@ export function DatasetPage() {
           )}
         </Panel>
 
-        <div ref={detailRef} className="scroll-mt-20 space-y-5">
+        <div ref={detailRef} className="scroll-mt-20 space-y-6">
           {selected ? <TargetDetail sample={selected} onClose={() => setSelected(null)} />
             : <Panel title="Target detail"><EmptyState title="No target selected" message="Select a row in the table to see its parameters and a light-curve preview." /></Panel>}
           <Panel title="Labels by split" description="How the labelled signals are divided. No star appears in two splits.">

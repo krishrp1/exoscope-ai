@@ -116,13 +116,13 @@ export function TrainingPage() {
                   } />
 
       {stream.connection === "closed" && (
-        <ErrorState className="mb-5" title="The live stream is disconnected"
+        <ErrorState className="mb-6" title="The live stream is disconnected"
                     message="The page is retrying automatically. Charts show the last data received. Is the backend running?"
                     onRetry={stream.reconnect} />
       )}
 
-      <div className="grid gap-5 xl:grid-cols-[22rem_1fr]">
-        <div className="space-y-5">
+      <div className="grid gap-6 xl:grid-cols-[22rem_1fr]">
+        <div className="space-y-6">
           <Panel title="Run control">
             <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); if (!paramError && !active) void start.run(params).then((r) => { if (r) stream.reconnect(); }); }}>
               {[["tr-epochs", "Maximum epochs", epochs, setEpochs, `1 to ${maxEpochs}; early stopping may end sooner`],
@@ -172,7 +172,7 @@ export function TrainingPage() {
           </Panel>
         </div>
 
-        <div className="min-w-0 space-y-5">
+        <div className="min-w-0 space-y-6">
           <Panel title="Status"
                  actions={<span className={cn("data rounded-full border px-2.5 py-0.5 text-xs uppercase", STATE_STYLE[state])}>{state}</span>}>
             {!status ? <LoadingState label="Waiting for the training stream" rows={2} />
@@ -223,7 +223,7 @@ export function TrainingPage() {
               : <EmptyState title="No training history yet" message="Start a run to see live loss, accuracy and learning-rate charts."
                             action={<Button variant="outline" size="sm" onClick={saved.refetch}><RefreshCw aria-hidden="true" /> Check again</Button>} />)
           ) : (
-            <div className="grid gap-5 lg:grid-cols-2">
+            <div className="grid gap-6 lg:grid-cols-2">
               <Panel title="Loss" description={showLive ? "Live: one point per finished epoch" : "Last completed run"}>
                 <LossChart history={history} bestEpoch={showLive ? null : lastCompleted?.best_epoch} />
               </Panel>

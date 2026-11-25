@@ -71,8 +71,8 @@ export function ComparePage() {
                   description="Put two to four dataset signals next to each other: their folded shapes, the model's score for each, and what drove it."
                   actions={<ProvenanceBadge kind="mast" />} />
 
-      <div className="grid gap-5 xl:grid-cols-[22rem_1fr]">
-        <div className="space-y-5">
+      <div className="grid gap-6 xl:grid-cols-[22rem_1fr]">
+        <div className="space-y-6">
           <Panel title="Add signals" description={`${selected.length} of ${MAX_SIGNALS} selected`}>
             <div className="mb-3 flex flex-wrap gap-2">
               <Button variant="outline" size="sm" disabled={example.loading} onClick={() => void addExample("CONFIRMED")}>
@@ -92,7 +92,7 @@ export function ComparePage() {
           </Panel>
         </div>
 
-        <div className="min-w-0 space-y-5">
+        <div className="min-w-0 space-y-6">
           <Panel title="Selection"
                  actions={selected.length > 0 ? <Button variant="ghost" size="sm" onClick={() => { setSelected([]); setRanges({}); }}>Clear all</Button> : undefined}>
             {selected.length === 0 ? (

@@ -2,13 +2,13 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-/** A glass card with an optional title row. The standard surface for every dashboard section. */
+/** A surface card with an optional title row. The standard surface for every dashboard section. */
 export function Panel({ title, description, actions, children, className, bodyClassName, as: Tag = "section" }: {
   title?: string; description?: ReactNode; actions?: ReactNode; children: ReactNode; className?: string;
   bodyClassName?: string; as?: "section" | "div" | "article";
 }) {
   return (
-    <Tag className={cn("glass min-w-0 rounded-xl", className)}>
+    <Tag className={cn("surface min-w-0 rounded-xl", className)}>
       {(title || actions) && (
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border px-4 py-3 sm:px-5">
           <div className="min-w-0">
@@ -28,7 +28,7 @@ export function Stat({ label, value, hint, tone = "default" }: {
 }) {
   const color = { default: "text-foreground", primary: "text-primary", success: "text-success", warning: "text-warning" }[tone];
   return (
-    <div className="glass rounded-xl px-4 py-3.5">
+    <div className="surface rounded-xl px-4 py-3.5">
       <p className="text-xs tracking-wide text-muted-foreground uppercase">{label}</p>
       <p className={cn("data mt-1.5 text-2xl font-semibold", color)}>{value}</p>
       {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}

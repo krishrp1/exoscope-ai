@@ -91,14 +91,14 @@ export function DetectPage() {
                                       onChange={(v) => { setSource(v); setResult(null); predictSample.clearError(); predictUpload.clearError(); }}
                                       options={[{ value: "sample", label: "A · Dataset sample" }, { value: "upload", label: "B · Upload CSV" }]} />} />
 
-      {model.error && <ErrorState className="mb-5" title="Cannot reach the model" message={model.error.message} onRetry={model.refetch} />}
+      {model.error && <ErrorState className="mb-6" title="Cannot reach the model" message={model.error.message} onRetry={model.refetch} />}
       {model.data && !model.data.trained && (
-        <EmptyState className="mb-5" title="No trained model yet"
+        <EmptyState className="mb-6" title="No trained model yet"
                     message="Classification needs a trained model. Start a run in the Training Monitor; nothing is predicted until it finishes."
                     action={<Link href="/observatory/training" className={buttonVariants()}>Open the Training Monitor</Link>} />
       )}
 
-      <div className="grid gap-5 xl:grid-cols-[24rem_1fr]">
+      <div className="grid gap-6 xl:grid-cols-[24rem_1fr]">
         {source === "sample" ? (
           <Panel title="A · Choose a dataset sample" actions={<ProvenanceBadge kind="mast" />}>
             <SamplePicker selectedIds={sample ? [sample.id] : []} onSelect={(s) => { setPicked(s); setResult(null); }} />
@@ -109,7 +109,7 @@ export function DetectPage() {
           </Panel>
         )}
 
-        <div className="min-w-0 space-y-5">
+        <div className="min-w-0 space-y-6">
           {source === "sample" && (
             <Panel title="Selected signal">
               {sample ? (

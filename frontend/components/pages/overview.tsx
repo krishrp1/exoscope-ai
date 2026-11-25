@@ -35,7 +35,7 @@ function SampleCurve({ sample }: { sample: Sample }) {
   const { data, error, loading } = useApi(() => api.sample(sample.id, { max_points: 1, include_views: true }), [sample.id]);
   return (
     <Link href={`/observatory/light-curves?id=${encodeURIComponent(sample.id)}`}
-          className="glass block rounded-xl p-3 transition-colors hover:border-primary/50">
+          className="surface block rounded-xl p-3 transition-colors hover:bg-accent">
       <div className="flex items-center justify-between gap-2">
         <span className="data text-sm font-medium">{sample.kepoi_name}</span>
         <DispositionBadge value={sample.koi_disposition} />
@@ -78,10 +78,10 @@ export function OverviewPage() {
       <PageHeader title="Overview" description="Live status of the dataset, the model and recent activity. Every figure is read from the backend."
                   actions={<Link href="/observatory/detect" className={buttonVariants()}>Classify a signal <ArrowRight aria-hidden="true" /></Link>} />
 
-      {stats.error && <ErrorState className="mb-5" title="Dataset statistics are unavailable" message={stats.error.message} onRetry={stats.refetch} />}
-      {model.error && <ErrorState className="mb-5" title="Model status is unavailable" message={model.error.message} onRetry={model.refetch} />}
+      {stats.error && <ErrorState className="mb-6" title="Dataset statistics are unavailable" message={stats.error.message} onRetry={stats.refetch} />}
+      {model.error && <ErrorState className="mb-6" title="Model status is unavailable" message={model.error.message} onRetry={model.refetch} />}
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Stat label="Catalog signals" value={s ? fmtInt(s.catalog.n_koi) : "…"}
               hint={s ? `${fmtInt(s.catalog.n_targets)} stars · Kaggle KOI table` : "loading"} />
         <Stat label="Light curves available" value={s ? fmtInt(s.light_curves.n_targets_available) : "…"} tone="primary"
@@ -95,12 +95,12 @@ export function OverviewPage() {
       </div>
 
       {m && !m.trained && (
-        <EmptyState className="mt-5" title="No trained model yet"
+        <EmptyState className="mt-6" title="No trained model yet"
                     message="Model metrics and predictions appear after the first training run. Nothing is shown in their place."
                     action={<Link href="/observatory/training" className={buttonVariants()}>Open the Training Monitor</Link>} />
       )}
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-3">
+      <div className="mt-6 grid gap-6 xl:grid-cols-3">
         <Panel className="xl:col-span-2" title="Class distribution"
                description="Dataset labels (koi_disposition). Candidates are unresolved and never used for training or evaluation."
                actions={<ProvenanceBadge kind="kaggle" />}>
@@ -133,7 +133,7 @@ export function OverviewPage() {
         </Panel>
       </div>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-3">
+      <div className="mt-6 grid gap-6 xl:grid-cols-3">
         <Panel className="xl:col-span-2" title="Sample signals" description="Six signals from the held-out test split. Select one to open it in the explorer."
                actions={<ProvenanceBadge kind="mast" />}>
           {samples.error ? <ErrorState message={samples.error.message} onRetry={samples.refetch} />
@@ -167,7 +167,7 @@ export function OverviewPage() {
         </Panel>
       </div>
 
-      <Disclaimer className="mt-5">
+      <Disclaimer className="mt-6">
         Model scores are softmax outputs. They are not the probability that an object is a confirmed planet.
       </Disclaimer>
     </>

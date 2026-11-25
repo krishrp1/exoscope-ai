@@ -120,7 +120,7 @@ export function PerformancePage() {
         {" "}{data.note}
       </p>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-2">
+      <div className="mt-6 grid gap-6 xl:grid-cols-2">
         <Panel title="Confusion matrix" description="Test split"><ConfusionMatrix test={t} /></Panel>
         <Panel title="Per-class metrics" description="Test split" bodyClassName="p-0 sm:p-0">
           <div className="overflow-x-auto">
@@ -156,7 +156,7 @@ export function PerformancePage() {
         </Panel>
       </div>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-2">
+      <div className="mt-6 grid gap-6 xl:grid-cols-2">
         <Panel title="ROC curve" description={`Test split · area ${fmt(t.roc_auc, 3)}`}>
           {t.roc_curve ? <CurvePlot x={t.roc_curve.fpr} y={t.roc_curve.tpr} xTitle="false positive rate" yTitle="true positive rate (recall)"
                                     name="model" baseline={{ x: [0, 1], y: [0, 1], name: "chance" }}
@@ -171,7 +171,7 @@ export function PerformancePage() {
         </Panel>
       </div>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-3">
+      <div className="mt-6 grid gap-6 xl:grid-cols-3">
         <Panel title="Training loss" description={`${m.epochs_run} epochs, best at epoch ${m.best_epoch}`}>
           {data.history ? <LossChart history={data.history} bestEpoch={m.best_epoch} animate /> : <EmptyState title="No history saved" />}
         </Panel>
@@ -193,7 +193,7 @@ export function PerformancePage() {
         </Panel>
       </div>
 
-      <Panel className="mt-5" title="Reading these results">
+      <Panel className="mt-6" title="Reading these results">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           <Note title="Architecture">
             {arch ? `${arch.layers.filter((l) => l.type === "Conv1D").length} convolution blocks, global average pooling and a ${arch.output_shape[0]}-way softmax: ${fmtInt(arch.total_params)} parameters. ` : ""}
@@ -223,7 +223,7 @@ export function PerformancePage() {
         </div>
       </Panel>
 
-      <Disclaimer className="mt-5">
+      <Disclaimer className="mt-6">
         {status.data?.disclaimer ?? "Model scores are softmax outputs, not the probability that an object is a confirmed planet."}
       </Disclaimer>
     </>

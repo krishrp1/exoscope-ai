@@ -54,9 +54,9 @@ export function PredictionResult({ result }: { result: Prediction }) {
   const provenance = src.type === "dataset_sample" ? "mast" : "user";
 
   return (
-    <motion.div className="space-y-5" initial={reduce ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+    <motion.div className="space-y-6" initial={reduce ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35 }}>
-      <div className="grid gap-5 lg:grid-cols-[1fr_1.2fr]">
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
         <Panel title="Result" actions={<ProvenanceBadge kind={provenance} />}>
           <p className="text-xs tracking-wide text-muted-foreground uppercase">Predicted class</p>
           <p className="mt-1 text-3xl font-semibold" style={{ color: CLASS_COLOR[result.predicted_class] }}>
@@ -98,7 +98,7 @@ export function PredictionResult({ result }: { result: Prediction }) {
 
         <Panel title="Processing" description="What the backend did with this signal">
           <AnalysisStages running={false} processing={result.processing} />
-          <h3 className="mt-5 mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Ephemeris used for folding</h3>
+          <h3 className="mt-6 mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Ephemeris used for folding</h3>
           <KeyValue columns={2} items={[
             ["Period", `${fmt(result.ephemeris.period, 5)} d`],
             ["Mid-transit time", fmt(result.ephemeris.t0, 4)],
@@ -116,7 +116,7 @@ export function PredictionResult({ result }: { result: Prediction }) {
           )}
           {result.upload && (
             <>
-              <h3 className="mt-5 mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Uploaded file</h3>
+              <h3 className="mt-6 mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Uploaded file</h3>
               <KeyValue columns={2} items={[
                 ["File", result.upload.filename],
                 ["Rows", fmtInt(result.upload.n_rows)],

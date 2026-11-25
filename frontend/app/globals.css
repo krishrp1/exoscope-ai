@@ -35,6 +35,7 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -60,6 +61,7 @@
   --popover-foreground: #fafafa;
   --primary: #2dd4bf;
   --primary-foreground: #04121f;
+  --primary-hover: #5eead4;
   --secondary: #18181b;
   --secondary-foreground: #fafafa;
   --muted: #18181b;
@@ -70,8 +72,8 @@
   --success: #34d399;
   --warning: #fbbf24;
   --destructive: #f87171;
-  --border: #27272a;
-  --input: #27272a;
+  --border: #2f2f35;
+  --input: #3a3a42;
   --ring: #2dd4bf;
   --chart-1: #2dd4bf;
   --chart-2: #60a5fa;
@@ -106,10 +108,6 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-image:
-      radial-gradient(60rem 40rem at 85% -10%, rgb(96 165 250 / 6%), transparent 60%),
-      radial-gradient(50rem 36rem at -10% 20%, rgb(45 212 191 / 5%), transparent 60%);
-    background-attachment: fixed;
   }
 }
 
@@ -121,15 +119,10 @@
 }
 
 @layer components {
-  .glass {
-    background: linear-gradient(180deg, rgb(24 24 27 / 94%), rgb(17 17 20 / 94%));
+  /* The one card surface: solid fill and a hairline border. No shadows or blur; depth comes from the fill steps. */
+  .surface {
+    background: var(--card);
     border: 1px solid var(--border);
-  }
-  .glow {
-    box-shadow: 0 0 0 1px rgb(45 212 191 / 20%), 0 0 20px -6px rgb(45 212 191 / 25%);
-  }
-  .text-glow {
-    text-shadow: 0 0 16px rgb(45 212 191 / 25%);
   }
   /* Native <select> restyled to match Input: same height, border and a chevron, with keyboard behaviour intact. */
   .select-field {

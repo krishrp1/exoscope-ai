@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 function Brand({ compact = false }: { compact?: boolean }) {
   return (
     <Link href="/" className="flex items-center gap-2.5 rounded-lg px-2 py-1.5" aria-label="ExoScope AI home">
-      <span className="glow flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
         <Telescope className="size-4.5" aria-hidden="true" />
       </span>
       {!compact && (

@@ -53,13 +53,13 @@ export function LightCurvesPage() {
                   description="Brightness over time for a Kepler target. Zoom by dragging, pan with the toolbar, scroll to zoom, double-click to reset."
                   actions={<ProvenanceBadge kind="mast" />} />
 
-      <div className="grid gap-5 xl:grid-cols-[22rem_1fr]">
+      <div className="grid gap-6 xl:grid-cols-[22rem_1fr]">
         <Panel title="Choose a signal" description="Dataset samples with a fetched light curve">
           <SamplePicker selectedIds={id ? [id] : []}
                         onSelect={(s) => router.replace(`${pathname}?id=${encodeURIComponent(s.id)}`)} />
         </Panel>
 
-        <div className="min-w-0 space-y-5">
+        <div className="min-w-0 space-y-6">
           {!id && first.error ? <ErrorState message={first.error.message} onRetry={first.refetch} />
             : !id && first.data && first.data.items.length === 0 ? <EmptyState title="No light curves available" message="Fetch light curves first (scripts/setup_data.sh)." />
             : detail.error ? <ErrorState title="This light curve could not be loaded" message={detail.error.message} onRetry={detail.refetch} />
@@ -98,7 +98,7 @@ export function LightCurvesPage() {
                   </div>
                 </Panel>
 
-                <div className="grid gap-5 lg:grid-cols-2">
+                <div className="grid gap-6 lg:grid-cols-2">
                   <Panel title="Metadata">
                     <KeyValue columns={1} items={[
                       ["Target ID", d.metadata.target_id],

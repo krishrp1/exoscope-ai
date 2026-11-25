@@ -65,7 +65,7 @@ export function HeroTransit() {
   );
 
   return (
-    <figure className="glass glow relative mx-auto w-full max-w-xl rounded-2xl p-3 sm:p-4">
+    <figure className="surface relative mx-auto w-full max-w-xl rounded-xl p-3 sm:p-4">
       <svg viewBox={`0 0 ${W} 372`} role="img" className="h-auto w-full"
            aria-label="Illustration: a planet orbits a star. When it crosses in front, the brightness graph below dips.">
         <defs>

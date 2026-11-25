@@ -62,7 +62,7 @@ export function AboutPage() {
       <PageHeader title="About & Methodology"
                   description="How ExoScope AI works end to end, where its data comes from, and what it cannot do. Written to be talked through." />
 
-      <div className="space-y-5">
+      <div className="space-y-6">
         <Panel title="What this is">
           <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
             <p>
@@ -89,7 +89,7 @@ export function AboutPage() {
           </ol>
         </Panel>
 
-        <div className="grid gap-5 xl:grid-cols-2">
+        <div className="grid gap-6 xl:grid-cols-2">
           <Panel title="Data pipeline" description="From two sources to one model input">
             <Flow label="Data pipeline diagram: the Kaggle KOI catalog and MAST light curves are joined by star, preprocessed into two folded views, and split by star into training, validation and test sets">
               <div className="flex flex-1 flex-col gap-2">
@@ -164,7 +164,7 @@ export function AboutPage() {
             )}
         </Panel>
 
-        <div className="grid gap-5 xl:grid-cols-2">
+        <div className="grid gap-6 xl:grid-cols-2">
           <Panel title="Dataset attribution">
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li>
