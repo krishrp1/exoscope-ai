@@ -46,11 +46,6 @@ Decisions taken without the owner present, with the alternatives considered and 
 - **Alternatives.** Use the TensorFlow release candidate on 3.14.
 - **Why.** A portfolio project should install from stable releases. Undo with `brew uninstall python@3.12`.
 
-### D9. Git identity
-- **Finding.** No global git identity was configured on this machine.
-- **Decision.** Set a repo-local identity only (`git config user.name` / `user.email` inside this repo): the macOS account's full name and the email of the Claude account that ran the session. No `Co-Authored-By` or tool attribution lines are added.
-- **To change it.** `git config user.name "..."; git config user.email "..."; git rebase -r --root --exec "git commit --amend --no-edit --reset-author"`.
-
 ## Phase 2: ML pipeline
 
 ### D10. Detrending with a moving median, window at least 4 transit durations

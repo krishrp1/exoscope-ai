@@ -15,10 +15,12 @@ from pathlib import Path
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 REPO_ROOT = BACKEND_DIR.parent
 
-DATA_DIR = Path(os.environ.get("EXOSCOPE_DATA_DIR", REPO_ROOT / "data"))
+# Full data (1.4 GB) lives in data/ locally; deployments without it fall back to the committed data/demo subset.
+_FULL = REPO_ROOT / "data"
+DATA_DIR = Path(os.environ.get("EXOSCOPE_DATA_DIR", _FULL if (_FULL / "lightcurves").exists() else _FULL / "demo"))
 LIGHTCURVE_DIR = DATA_DIR / "lightcurves"
 MANIFEST_PATH = DATA_DIR / "lightcurve_manifest.csv"
-PROCESSED_PATH = DATA_DIR / "processed_views.npz"
+PROCESSED_PATH = _FULL / "processed_views.npz"
 
 SAVED_MODELS_DIR = Path(os.environ.get("EXOSCOPE_MODELS_DIR", BACKEND_DIR / "saved_models"))
 ARTIFACTS_DIR = Path(os.environ.get("EXOSCOPE_ARTIFACTS_DIR", BACKEND_DIR / "artifacts"))

@@ -6,8 +6,12 @@ evaluate the shipped model.
 """
 from __future__ import annotations
 
+import os
+
 import numpy as np
 import pytest
+
+os.environ.setdefault("EXOSCOPE_PREDICT_PER_MINUTE", "100000")  # the suite fires many predictions from one client
 
 from backend.ml.preprocessing import PreprocessConfig, process_light_curve
 

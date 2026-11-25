@@ -2,6 +2,8 @@
 data/*
 !data/.gitkeep
 !data/processed_views.npz
+!data/demo/
+!data/demo/**
 backend/saved_models/*
 !backend/saved_models/model.keras
 !backend/saved_models/model_config.json

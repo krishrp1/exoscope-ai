@@ -39,7 +39,8 @@ async def lifespan(_: FastAPI):
 app = FastAPI(title="ExoScope AI", version=VERSION, lifespan=lifespan,
               description="Deep-learning classification of Kepler transit signals.")
 install_error_handlers(app)  # first, so its catch-all middleware ends up inside CORS
-app.add_middleware(CORSMiddleware, allow_origins=get_settings().cors_origin_list, allow_credentials=False,
+app.add_middleware(CORSMiddleware, allow_origins=get_settings().cors_origin_list,
+                   allow_origin_regex=get_settings().cors_origin_regex, allow_credentials=False,
                    allow_methods=["*"], allow_headers=["*"])
 for module in (routes_dataset, routes_model, routes_predict, routes_training):
     app.include_router(module.router)
@@ -53,6 +54,7 @@ def health() -> dict:
         "time": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "model_loaded": state.predictor is not None,
         "n_samples": int(len(state.samples)),
+        "training_enabled": get_settings().training_enabled,
         "training_state": state.training.status.get("state"),
         "dataset_error": state.dataset_error,
     }

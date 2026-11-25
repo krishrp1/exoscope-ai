@@ -18,7 +18,10 @@ from . import config
 
 @lru_cache(maxsize=1)
 def kaggle_csv_path() -> Path:
-    """Download (or reuse the cached copy of) the Kaggle dataset and return the CSV path."""
+    """Bundled catalog if present (deployments), else download/reuse the Kaggle copy."""
+    bundled = config.DATA_DIR / config.KAGGLE_FILENAME
+    if bundled.exists():
+        return bundled
     import kagglehub
 
     root = Path(kagglehub.dataset_download(config.KAGGLE_DATASET))

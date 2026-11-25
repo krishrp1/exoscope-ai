@@ -58,8 +58,14 @@ function BackendStatus() {
     const id = setInterval(refetch, 15000);
     return () => clearInterval(id);
   }, [refetch]);
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    if (data || error) return;
+    const id = setTimeout(() => setSlow(true), 4000);
+    return () => clearTimeout(id);
+  }, [data, error]);
   const offline = !!error;
-  const label = offline ? "Backend offline" : !data ? "Connecting" : data.model_loaded ? "Model online" : "Model not trained";
+  const label = offline ? "Backend offline" : !data && slow ? "Waking server (up to 1 min)" : !data ? "Connecting" : data.model_loaded ? "Model online" : "Model not trained";
   const color = offline ? "bg-destructive" : !data ? "bg-muted-foreground" : data.model_loaded ? "bg-success" : "bg-warning";
   return (
     <div role="status" aria-live="polite"

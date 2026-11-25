@@ -5,8 +5,6 @@ import json
 from pathlib import Path
 
 import numpy as np
-from sklearn.metrics import (accuracy_score, average_precision_score, confusion_matrix,
-                             precision_recall_curve, precision_recall_fscore_support, roc_auc_score, roc_curve)
 
 from . import config
 
@@ -20,6 +18,9 @@ def _thin(*arrays: np.ndarray, max_points: int = 300) -> list[list[float]]:
 
 def compute_metrics(y_true: np.ndarray, probs: np.ndarray, class_names: list[str] | None = None) -> dict:
     """Metrics for a binary problem. `probs` is (N, 2) softmax output; class 1 is the positive class."""
+    # Lazy: sklearn adds ~90 MB, and the API process never computes metrics (only training does).
+    from sklearn.metrics import (accuracy_score, average_precision_score, confusion_matrix,
+                                 precision_recall_curve, precision_recall_fscore_support, roc_auc_score, roc_curve)
     class_names = class_names or config.CLASS_NAMES
     y_true = np.asarray(y_true).astype(int)
     score = np.asarray(probs)[:, 1]

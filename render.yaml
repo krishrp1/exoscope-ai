@@ -1,17 +1,35 @@
 services:
   - type: web
     name: exoscope-backend
-    env: python
+    runtime: python
     region: oregon
-    plan: starter
-    buildCommand: "pip install -r backend/requirements.txt"
-    startCommand: "uvicorn backend.main:app --host 0.0.0.0 --port $PORT"
+    plan: free
+    buildCommand: "pip install --no-cache-dir -r backend/requirements.txt"
+    startCommand: "uvicorn backend.main:app --host 0.0.0.0 --port $PORT --workers 1"
+    healthCheckPath: /api/health
     envVars:
       - key: PYTHONPATH
         value: "."
       - key: EXOSCOPE_CORS_ORIGINS
-        value: "*"
+        value: "https://exoscope-ai.vercel.app"
+      - key: EXOSCOPE_TRAINING_ENABLED
+        value: "false"
       - key: EXOSCOPE_MAX_UPLOAD_MB
+        value: "2"
+      - key: EXOSCOPE_MAX_UPLOAD_ROWS
+        value: "100000"
+      - key: EXOSCOPE_MAX_BATCH_SIZE
         value: "10"
       - key: EXOSCOPE_LOG_LEVEL
         value: "INFO"
+      # keep TensorFlow small: one thread pool, no oneDNN warm-up buffers, no log spam
+      - key: TF_CPP_MIN_LOG_LEVEL
+        value: "3"
+      - key: TF_ENABLE_ONEDNN_OPTS
+        value: "0"
+      - key: OMP_NUM_THREADS
+        value: "1"
+      - key: TF_NUM_INTRAOP_THREADS
+        value: "1"
+      - key: TF_NUM_INTEROP_THREADS
+        value: "1"

@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import logging
+import time
+from collections import defaultdict, deque
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -36,6 +38,27 @@ def install_error_handlers(app: FastAPI) -> None:
     async def _http(_: Request, exc: StarletteHTTPException):
         code = {404: "not_found", 405: "method_not_allowed"}.get(exc.status_code, "http_error")
         return JSONResponse(error_body(code, str(exc.detail)), status_code=exc.status_code)
+
+    # shortcut: in-memory per-process limiter (one free-tier worker); use Redis if you scale out.
+    hits: dict[str, deque] = defaultdict(deque)
+
+    @app.middleware("http")
+    async def _rate_limit(request: Request, call_next):
+        if request.method == "POST" and request.url.path.startswith("/api/predict"):
+            from .settings import get_settings
+            limit = get_settings().predict_per_minute
+            ip = (request.headers.get("x-forwarded-for") or (request.client.host if request.client else "?")).split(",")[0].strip()
+            q, now = hits[ip], time.monotonic()
+            while q and now - q[0] > 60:
+                q.popleft()
+            if len(q) >= limit:
+                return JSONResponse(error_body("rate_limited", f"Limit is {limit} predictions per minute. Try again shortly."),
+                                    status_code=429, headers={"Retry-After": "30"})
+            q.append(now)
+            if len(hits) > 5000:  # bound memory: drop idle clients
+                for k in [k for k, v in hits.items() if not v or now - v[-1] > 60]:
+                    del hits[k]
+        return await call_next(request)
 
     # Unexpected errors are caught in a middleware that sits inside the CORS middleware, so that the
     # JSON 500 still carries CORS headers and a browser can read it. (A plain exception handler for

@@ -22,6 +22,7 @@ export interface Health {
   time: string;
   model_loaded: boolean;
   n_samples: number;
+  training_enabled: boolean;
   training_state: string;
   dataset_error: string | null;
 }

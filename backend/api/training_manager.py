@@ -10,7 +10,10 @@ import uuid
 from datetime import datetime, timezone
 from typing import Callable
 
-from backend.ml.train import TrainParams, train_model
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from backend.ml.train import TrainParams
 
 logger = logging.getLogger("exoscope.training")
 
@@ -32,12 +35,14 @@ def _now() -> str:
 
 
 class TrainingManager:
-    def __init__(self, on_completed: Callable[[], None] | None = None, train_fn=train_model):
+    def __init__(self, on_completed: Callable[[], None] | None = None, train_fn=None):
         self._lock = threading.Lock()
         self._thread: threading.Thread | None = None
         self._stop = threading.Event()
         self._subscribers: list[tuple[asyncio.AbstractEventLoop, asyncio.Queue]] = []
         self._on_completed = on_completed
+        if train_fn is None:
+            from backend.ml.train import train_model as train_fn  # lazy: keeps training deps out of API startup
         self._train_fn = train_fn
         self._epoch_seconds: list[float] = []
         self.events: list[dict] = []

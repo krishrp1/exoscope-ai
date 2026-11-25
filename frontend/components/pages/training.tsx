@@ -64,6 +64,8 @@ export function TrainingPage() {
   const [epochs, setEpochs] = useState("40");
   const [batchSize, setBatchSize] = useState("64");
   const [learningRate, setLearningRate] = useState("0.001");
+  const health = useApi(api.health);
+  const trainingOff = health.data?.training_enabled === false; // free hosting: saved results only
   const start = useAction(api.startTraining);
   const stop = useAction(api.stopTraining);
 
@@ -130,9 +132,10 @@ export function TrainingPage() {
                   <p id={`${id}-hint`} className="mt-1 text-xs text-muted-foreground">{hint as string}</p>
                 </div>
               ))}
+              {trainingOff && <p className="text-xs text-warning">Training is disabled on this deployment. The saved run below is real; retrain locally.</p>}
               {paramError && <p role="alert" className="text-xs text-destructive">{paramError}</p>}
               <div className="flex flex-wrap gap-2 pt-1">
-                <Button type="submit" disabled={active || !!paramError || start.loading || stream.connection !== "open"}>
+                <Button type="submit" disabled={trainingOff || active || !!paramError || start.loading || stream.connection !== "open"}>
                   <Play aria-hidden="true" /> {active ? "Training in progress" : "Start training"}
                 </Button>
                 <Button type="button" variant="destructive" disabled={state !== "running" || stop.loading} onClick={() => void stop.run()}>

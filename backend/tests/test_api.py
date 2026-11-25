@@ -395,3 +395,11 @@ def test_idle_training_status_has_empty_history_lists():
     snapshot = TrainingManager().snapshot()
     assert snapshot["state"] == "idle" and snapshot["is_running"] is False
     assert snapshot["history"] == {k: [] for k in HISTORY_KEYS}
+
+
+def test_predict_rate_limit(client, monkeypatch):
+    from backend.api.settings import get_settings
+    monkeypatch.setattr(get_settings(), "predict_per_minute", 2)
+    h = {"x-forwarded-for": "203.0.113.9"}  # a fresh client, so earlier tests do not count
+    codes = [client.post("/api/predict", json={}, headers=h).status_code for _ in range(3)]
+    assert codes[:2] == [422, 422] and codes[2] == 429

@@ -21,20 +21,25 @@ export class ApiError extends Error {
   }
 }
 
-const READ_TIMEOUT_MS = 20_000;
+const READ_TIMEOUT_MS = 30_000;
+const READ_ATTEMPTS = 3; // a sleeping free-tier backend needs up to ~1 min to wake; only reads are retried
 const WRITE_TIMEOUT_MS = 120_000; // predictions on uploads can include a period search
 
 export async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  let response: Response;
-  const timeout = init?.method === "POST" ? WRITE_TIMEOUT_MS : READ_TIMEOUT_MS;
-  try {
-    response = await fetch(`${API_BASE_URL}${path}`, { ...init, signal: AbortSignal.timeout(timeout) });
-  } catch (err) {
-    if ((err as { name?: string } | null)?.name === "TimeoutError") {
-      throw new ApiError(0, "timeout", `The ExoScope backend did not answer within ${timeout / 1000} seconds.`);
+  let response: Response | undefined;
+  const isRead = !init?.method || init.method === "GET";
+  const timeout = isRead ? READ_TIMEOUT_MS : WRITE_TIMEOUT_MS;
+  for (let attempt = 1; !response; attempt++) {
+    try {
+      response = await fetch(`${API_BASE_URL}${path}`, { ...init, signal: AbortSignal.timeout(timeout) });
+    } catch (err) {
+      if (isRead && attempt < READ_ATTEMPTS) continue;
+      if ((err as { name?: string } | null)?.name === "TimeoutError") {
+        throw new ApiError(0, "timeout", `The ExoScope backend did not answer within ${timeout / 1000} seconds.`);
+      }
+      throw new ApiError(0, "network_error",
+        `Cannot reach the ExoScope backend at ${API_BASE_URL}. Is it running?`);
     }
-    throw new ApiError(0, "network_error",
-      `Cannot reach the ExoScope backend at ${API_BASE_URL}. Is it running?`);
   }
   if (!response.ok) {
     let body: ApiErrorBody | null = null;

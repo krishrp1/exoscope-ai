@@ -260,7 +260,6 @@ data/                light curves and processed dataset (generated)
 docs/                dataset report, architecture, talking points, verification reports
 scripts/             setup_data.sh, start_backend.sh, start_frontend.sh
 DECISIONS.md         every non-obvious decision, with alternatives
-PROGRESS.md          what was built in each phase, and open issues
 ```
 
 ## Limitations
