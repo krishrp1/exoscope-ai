@@ -1,6 +1,7 @@
 """Prediction endpoints: dataset samples, inline arrays, CSV uploads and batches."""
 from __future__ import annotations
 
+import threading
 import time as _time
 
 import numpy as np
@@ -27,11 +28,19 @@ def _require_model():
     return predictor
 
 
+# At most 2 predictions at once: each runs TensorFlow (and attributions), and the free instance has 512 MB.
+_slots = threading.BoundedSemaphore(2)
+
+
 def _run(predictor, **kwargs) -> dict:
+    if not _slots.acquire(blocking=False):
+        raise ApiError(503, "server_busy", "The server is busy with other predictions. Try again in a few seconds.")
     try:
         return predictor.predict(**kwargs)
     except PreprocessingError as exc:
         raise ApiError(422, "cannot_process", f"The light curve could not be processed: {exc}")
+    finally:
+        _slots.release()
 
 
 def predict_sample(sample_id: str, explain: bool, methods: list[str] | None) -> dict:

@@ -403,3 +403,12 @@ def test_predict_rate_limit(client, monkeypatch):
     h = {"x-forwarded-for": "203.0.113.9"}  # a fresh client, so earlier tests do not count
     codes = [client.post("/api/predict", json={}, headers=h).status_code for _ in range(3)]
     assert codes[:2] == [422, 422] and codes[2] == 429
+
+
+def test_recent_predictions_hide_upload_filenames(client):
+    from backend.api.state import state
+    state.recent_predictions.clear()
+    csv = "time,flux\n" + "\n".join(f"{i * 0.0204},{1000 + (i % 7)}" for i in range(3000))
+    client.post("/api/predict/upload", files={"file": ("secret-name.csv", csv, "text/csv")},
+                data={"period": "3", "t0": "0.5", "duration_hours": "3"})
+    assert "secret-name" not in str(client.get("/api/predictions/recent").json())

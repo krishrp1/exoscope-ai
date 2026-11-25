@@ -94,7 +94,7 @@ class AppState:
         self.recent_predictions.appendleft({
             "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "source_type": source.get("type"),
-            "name": source.get("name"),
+            "name": source.get("name") if source.get("type") == "dataset_sample" else "uploaded light curve",
             "dataset_label": source.get("dataset_label"),
             "predicted_class": result["predicted_class"],
             "confidence": result["confidence"],
