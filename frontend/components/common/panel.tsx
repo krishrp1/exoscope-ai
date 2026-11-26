@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { AnimatedNumber } from "@/components/effects";
 import { cn } from "@/lib/utils";
 
 /** A surface card with an optional title row. The standard surface for every dashboard section. */
@@ -30,7 +31,9 @@ export function Stat({ label, value, hint, tone = "default" }: {
   return (
     <div className="surface rounded-xl px-4 py-3.5">
       <p className="text-xs tracking-wide text-muted-foreground uppercase">{label}</p>
-      <p className={cn("data mt-1.5 text-2xl font-semibold", color)}>{value}</p>
+      <p className={cn("data mt-1.5 text-2xl font-semibold", color)}>
+        {typeof value === "string" ? <AnimatedNumber value={value} /> : value}
+      </p>
       {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
     </div>
   );

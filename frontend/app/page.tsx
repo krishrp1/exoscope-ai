@@ -59,9 +59,9 @@ export default function LandingPage() {
       </header>
 
       <main id="main" tabIndex={-1} className="flex-1 outline-none">
-        <section aria-labelledby="hero-title" className="mx-auto grid w-full max-w-6xl items-center gap-10 px-5 pt-14 pb-10 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:pt-20">
+        <section aria-labelledby="hero-title" className="fx-aurora mx-auto grid w-full max-w-6xl items-center gap-10 px-5 pt-14 pb-10 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:pt-20">
           <div>
-            <h1 id="hero-title" className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+            <h1 id="hero-title" className="fx-shimmer text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
               Which Kepler dips are really planets?
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
@@ -69,7 +69,7 @@ export default function LandingPage() {
               or a false positive. On 626 signals from stars it never saw during training, it is right about 90% of the time.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/observatory/detect" className={buttonVariants({ size: "lg" })}>
+              <Link href="/observatory/detect" className={`${buttonVariants({ size: "lg" })} fx-glow fx-magnetic`}>
                 Classify a signal <ArrowRight aria-hidden="true" />
               </Link>
               <Link href="#science" className={buttonVariants({ size: "lg", variant: "outline" })}>

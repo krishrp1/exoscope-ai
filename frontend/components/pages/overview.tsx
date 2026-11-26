@@ -76,7 +76,7 @@ export function OverviewPage() {
   return (
     <>
       <PageHeader title="Overview" description="Live status of the dataset, the model and recent activity. Every figure is read from the backend."
-                  actions={<Link href="/observatory/detect" className={buttonVariants()}>Classify a signal <ArrowRight aria-hidden="true" /></Link>} />
+                  actions={<Link href="/observatory/detect" className={`${buttonVariants()} fx-glow fx-magnetic`}>Classify a signal <ArrowRight aria-hidden="true" /></Link>} />
 
       {stats.error && <ErrorState className="mb-6" title="Dataset statistics are unavailable" message={stats.error.message} onRetry={stats.refetch} />}
       {model.error && <ErrorState className="mb-6" title="Model status is unavailable" message={model.error.message} onRetry={model.refetch} />}
