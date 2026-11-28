@@ -26,16 +26,16 @@ function HistoryChart({ history, series, yLabel, ariaLabel, bestEpoch, log = fal
         <LineChart data={rows} margin={{ top: 18, right: 12, bottom: 4, left: 0 }}>
           <CartesianGrid stroke="rgba(39,39,42,0.5)" />
           <XAxis dataKey="epoch" type="number" domain={[1, "dataMax"]} allowDecimals={false} tick={axisTick} tickLine={false}
-                 axisLine={{ stroke: "#27272a" }} />
+                 axisLine={{ stroke: "rgba(255,255,255,0.14)" }} />
           <YAxis tick={axisTick} tickLine={false} axisLine={false} width={56} scale={log ? "log" : "auto"}
                  domain={log ? ["auto", "auto"] : ["auto", "auto"]}
                  tickFormatter={(v: number) => (log ? v.toExponential(0) : v.toFixed(2))}
-                 label={{ value: yLabel, angle: -90, position: "insideLeft", fill: "#a1a1aa", fontSize: 11, dy: 30 }} />
+                 label={{ value: yLabel, angle: -90, position: "insideLeft", fill: "#a3a6ad", fontSize: 11, dy: 30 }} />
           <Tooltip {...chartTooltip} labelFormatter={(e) => `epoch ${e}`}
                    formatter={(v) => (log ? Number(v).toExponential(2) : Number(v).toFixed(4))} />
           <Legend wrapperStyle={{ fontSize: 11 }} />
           {bestEpoch ? <ReferenceLine x={bestEpoch} stroke="rgba(52,211,153,0.6)" strokeDasharray="4 4"
-                                      label={{ value: "best", fill: "#34d399", fontSize: 10, position: "top" }} /> : null}
+                                      label={{ value: "best", fill: "#f3b45a", fontSize: 10, position: "top" }} /> : null}
           {series.map((s) => (
             <Line key={s.key} type="monotone" dataKey={s.key} name={s.label} stroke={s.color} strokeWidth={1.8}
                   dot={rows.length < 25 ? { r: 2 } : false} isAnimationActive={animate} />
@@ -48,15 +48,15 @@ function HistoryChart({ history, series, yLabel, ariaLabel, bestEpoch, log = fal
 
 export function LossChart(props: { history: TrainingHistory; bestEpoch?: number | null; animate?: boolean }) {
   return <HistoryChart {...props} yLabel="loss" ariaLabel={`Training and validation loss over ${props.history.loss.length} epochs`}
-                       series={[{ key: "loss", label: "train loss", color: "#2dd4bf" }, { key: "val_loss", label: "validation loss", color: "#60a5fa" }]} />;
+                       series={[{ key: "loss", label: "train loss", color: "#dfe4ec" }, { key: "val_loss", label: "validation loss", color: "#8fb4ff" }]} />;
 }
 
 export function AccuracyChart(props: { history: TrainingHistory; bestEpoch?: number | null; animate?: boolean }) {
   return <HistoryChart {...props} yLabel="accuracy" ariaLabel={`Training and validation accuracy over ${props.history.accuracy.length} epochs`}
-                       series={[{ key: "accuracy", label: "train accuracy", color: "#2dd4bf" }, { key: "val_accuracy", label: "validation accuracy", color: "#60a5fa" }]} />;
+                       series={[{ key: "accuracy", label: "train accuracy", color: "#dfe4ec" }, { key: "val_accuracy", label: "validation accuracy", color: "#8fb4ff" }]} />;
 }
 
 export function LearningRateChart(props: { history: TrainingHistory; animate?: boolean }) {
   return <HistoryChart {...props} log yLabel="learning rate" ariaLabel={`Learning rate over ${props.history.learning_rate.length} epochs`}
-                       series={[{ key: "learning_rate", label: "learning rate", color: "#fbbf24" }]} />;
+                       series={[{ key: "learning_rate", label: "learning rate", color: "#f3b45a" }]} />;
 }

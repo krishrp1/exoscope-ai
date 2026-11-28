@@ -14,15 +14,16 @@ const PlotInner = dynamic(() => import("./plot-inner"), {
 });
 
 const AXIS = {
-  gridcolor: "rgba(39,39,42,0.6)",
-  zerolinecolor: "rgba(39,39,42,0.5)",
-  linecolor: "#27272a",
-  tickfont: { family: "var(--font-geist-mono), monospace", size: 11, color: "#a1a1aa" },
-  title: { font: { size: 12, color: "#a1a1aa" } },
+  gridcolor: "rgba(255,255,255,0.06)",
+  zerolinecolor: "rgba(255,255,255,0.1)",
+  linecolor: "rgba(255,255,255,0.14)",
+  tickfont: { family: "var(--font-geist-mono), monospace", size: 11, color: "#a3a6ad" },
+  title: { font: { size: 12, color: "#a3a6ad" } },
 };
 
-export const PLOT_COLORS = { cyan: "#2dd4bf", violet: "#60a5fa", green: "#34d399", amber: "#fbbf24", red: "#f87171",
-                             muted: "#a1a1aa" };
+// Names kept for the call sites; values follow the observatory palette (silver flux, ice, starlight).
+export const PLOT_COLORS = { cyan: "#dfe4ec", violet: "#8fb4ff", green: "#c9a7ff", amber: "#f3b45a", red: "#f2777a",
+                             muted: "#a3a6ad" };
 
 export interface PlotProps {
   data: Data[];
@@ -43,13 +44,13 @@ function PlotBase({ data, layout, config, height = 360, ariaLabel, onRelayout, r
   const merged = useMemo<Partial<Layout>>(() => {
     const out: Partial<Layout> = {
       paper_bgcolor: "rgba(0,0,0,0)",
-      plot_bgcolor: "rgba(5,8,22,0.55)",
-      font: { family: "var(--font-geist-sans), sans-serif", color: "#f8fafc", size: 12 },
+      plot_bgcolor: "rgba(0,0,0,0.35)",
+      font: { family: "var(--font-geist-sans), sans-serif", color: "#f2f3f5", size: 12 },
       margin: { l: 58, r: 16, t: 16, b: 46 },
       autosize: true,
       hovermode: "closest",
-      hoverlabel: { bgcolor: "#111114", bordercolor: "#2dd4bf", font: { color: "#fafafa", size: 12 } },
-      legend: { orientation: "h", y: 1.12, x: 0, font: { size: 11, color: "#a1a1aa" } },
+      hoverlabel: { bgcolor: "#0f1013", bordercolor: "rgba(255,255,255,0.25)", font: { color: "#f2f3f5", size: 12 } },
+      legend: { orientation: "h", y: 1.12, x: 0, font: { size: 11, color: "#a3a6ad" } },
       dragmode: "zoom",
       ...layout,
     };
@@ -67,7 +68,7 @@ function PlotBase({ data, layout, config, height = 360, ariaLabel, onRelayout, r
   );
 
   return (
-    <div role="img" aria-label={ariaLabel} style={{ height }} className="w-full">
+    <div role="figure" aria-label={ariaLabel} style={{ height }} className="w-full">
       <PlotInner data={data} layout={merged} config={mergedConfig} useResizeHandler onRelayout={onRelayout}
                  revision={revision} style={{ width: "100%", height: "100%" }} />
     </div>

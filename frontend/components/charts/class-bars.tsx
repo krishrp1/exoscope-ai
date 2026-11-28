@@ -9,12 +9,12 @@ export interface ClassBarSeries {
 }
 
 export const chartTooltip = {
-  contentStyle: { background: "#111114", border: "1px solid #27272a", borderRadius: 8, fontSize: 12 },
-  labelStyle: { color: "#fafafa" },
-  itemStyle: { color: "#fafafa" },
+  contentStyle: { background: "#0f1013", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 8, fontSize: 12 },
+  labelStyle: { color: "#f2f3f5" },
+  itemStyle: { color: "#f2f3f5" },
   cursor: { fill: "rgba(39,39,42,0.5)" },
 };
-export const axisTick = { fill: "#a1a1aa", fontSize: 11 };
+export const axisTick = { fill: "#a3a6ad", fontSize: 11 };
 
 /** Grouped bar chart of counts per class. `rows` come straight from the API. */
 export function ClassBars({ rows, series, height = 240, ariaLabel }: {

@@ -19,7 +19,7 @@ import { CLASS_COLOR, fmt, PALETTE, SPLIT_LABEL } from "@/lib/format";
 import type { BatchItem, Sample } from "@/types/api";
 
 const MAX_SIGNALS = 4;
-const SERIES_COLORS = [PALETTE.primary, PALETTE.blue, PALETTE.success, PALETTE.warning];
+const SERIES_COLORS = [PALETTE.primary, PALETTE.star, PALETTE.candidate, PALETTE.success];
 type Layout = "side" | "shared";
 
 export function ComparePage() {
@@ -181,7 +181,7 @@ export function ComparePage() {
                 </Panel>
 
                 <Panel title="Model output per signal" bodyClassName="p-0 sm:p-0">
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Model output per signal">
                     <table className="w-full text-sm">
                       <caption className="sr-only">Dataset label, model prediction and score for each compared signal</caption>
                       <thead>

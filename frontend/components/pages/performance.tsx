@@ -23,7 +23,7 @@ function ConfusionMatrix({ test }: { test: SplitMetrics }) {
   const names = [["True negative", "False alarm"], ["Missed planet", "True positive"]];
   return (
     <div>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Confusion matrix">
       <table className="w-full border-separate border-spacing-1.5 text-sm">
         <caption className="sr-only">Confusion matrix on the test set. Rows are the dataset label, columns are the model prediction.</caption>
         <thead>
@@ -38,7 +38,7 @@ function ConfusionMatrix({ test }: { test: SplitMetrics }) {
               <th scope="row" className="pr-2 text-right text-xs font-medium text-muted-foreground">Label {labels[i]}</th>
               {row.map((v, j) => (
                 <td key={j} className="rounded-lg border border-border p-2 text-center sm:p-3"
-                    style={{ background: `rgba(56,189,248,${0.06 + 0.5 * (v / max)})` }}>
+                    style={{ background: `rgba(230,232,236,${0.05 + 0.35 * (v / max)})` }}>
                   <span className="data block text-xl font-semibold sm:text-2xl">{fmtInt(v)}</span>
                   <span className="block text-xs text-muted-foreground">{names[i][j]}</span>
                 </td>
@@ -58,7 +58,7 @@ function CurvePlot({ x, y, xTitle, yTitle, name, baseline, ariaLabel }: {
   baseline: { x: number[]; y: number[]; name: string }; ariaLabel: string;
 }) {
   const data = useMemo<Data[]>(() => [
-    { type: "scatter", mode: "lines", x, y, name, line: { color: PLOT_COLORS.cyan, width: 2 }, fill: "tozeroy", fillcolor: "rgba(56,189,248,0.08)" },
+    { type: "scatter", mode: "lines", x, y, name, line: { color: PLOT_COLORS.cyan, width: 2 }, fill: "tozeroy", fillcolor: "rgba(230,232,236,0.06)" },
     { type: "scatter", mode: "lines", x: baseline.x, y: baseline.y, name: baseline.name, line: { color: PLOT_COLORS.muted, width: 1, dash: "dash" } },
   ], [x, y, name, baseline]);
   const layout = useMemo<Partial<Layout>>(() => ({
@@ -123,7 +123,7 @@ export function PerformancePage() {
       <div className="mt-6 grid gap-6 xl:grid-cols-2">
         <Panel title="Confusion matrix" description="Test split"><ConfusionMatrix test={t} /></Panel>
         <Panel title="Per-class metrics" description="Test split" bodyClassName="p-0 sm:p-0">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Per-class metrics">
             <table className="w-full text-sm">
               <caption className="sr-only">Precision, recall, F1 and support per class on the test split</caption>
               <thead>

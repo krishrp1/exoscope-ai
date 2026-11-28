@@ -140,7 +140,7 @@ export function AboutPage() {
                 Conv1D(128, k=3), BatchNorm, ReLU; global average pooling; Dense(64); Dropout; softmax over two classes.
               </p>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Model layers">
                 <table className="w-full text-sm">
                   <caption className="sr-only">Layers of the loaded model with output shape and parameter count</caption>
                   <thead>

@@ -35,7 +35,7 @@ export function LightCurvePlot({ detail, showTransits, height = 420, xRange, onX
     if (times.length > MAX_SHAPES) return [];
     return times.map((t) => ({
       type: "rect", xref: "x", yref: "paper", x0: t - half, x1: t + half, y0: 0, y1: 1,
-      fillcolor: "rgba(167,139,250,0.22)", line: { width: 0 }, layer: "below",
+      fillcolor: "rgba(243,180,90,0.16)", line: { width: 0 }, layer: "below",
     }));
   }, [showTransits, transits, xRange]);
 

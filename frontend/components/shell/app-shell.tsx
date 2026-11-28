@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 
+import { Starfield } from "@/components/common/starfield";
 import { CommandPalette } from "@/components/shell/command-palette";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -15,11 +16,11 @@ import { cn } from "@/lib/utils";
 
 function Brand({ compact = false }: { compact?: boolean }) {
   return (
-    <Link href="/" className="flex items-center gap-2.5 rounded-lg px-2 py-1.5" aria-label="ExoScope AI home">
+    <Link href="/" className="flex items-center gap-2.5 rounded-lg px-2 py-1.5">
       <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
         <Telescope className="size-4.5" aria-hidden="true" />
       </span>
-      {!compact && (
+      {compact ? <span className="sr-only">ExoScope AI home</span> : (
         <span className="leading-tight">
           <span className="block text-sm font-semibold tracking-wide">ExoScope AI</span>
           <span className="block text-[11px] text-muted-foreground">Transit observatory</span>
@@ -131,11 +132,12 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen w-full">
+      <Starfield />
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground">
         Skip to content
       </a>
 
-      <aside className={cn("sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border bg-background-secondary/80 p-3 backdrop-blur lg:flex",
+      <aside className={cn("glass-bar sticky top-0 z-20 hidden h-screen shrink-0 flex-col border-r border-b-0 p-3 lg:flex",
                            collapsed ? "w-16" : "w-64")}>
         <Brand compact={collapsed} />
         <div className="mt-5 flex-1 overflow-y-auto">
@@ -162,7 +164,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </Sheet>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/75 px-4 backdrop-blur sm:px-6">
+        <header className="glass-bar sticky top-0 z-30 flex h-14 items-center gap-3 px-4 sm:px-6">
           <Button variant="ghost" size="icon" className="size-11 lg:hidden" onClick={() => setDrawerOpen(true)}
                   aria-label="Open navigation menu">
             <Menu aria-hidden="true" />
@@ -174,7 +176,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <CommandPalette />
           <BackendStatus />
         </header>
-        <main id="main" tabIndex={-1} className="mx-auto w-full max-w-[1500px] flex-1 px-4 py-6 outline-none sm:px-6 lg:px-8">
+        <main id="main" tabIndex={-1} className="relative z-10 mx-auto w-full max-w-[1500px] flex-1 px-4 py-6 outline-none sm:px-6 lg:px-8">
           {children}
         </main>
         <footer className="border-t border-border px-4 py-3 text-center text-xs text-muted-foreground sm:px-6">

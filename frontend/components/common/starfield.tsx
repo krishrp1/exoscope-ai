@@ -2,7 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
-/** Decorative background: a slow twinkling starfield. Static when the user prefers reduced motion. */
+/** Decorative background: a slow twinkling starfield. Static when the user prefers reduced motion.
+ * Negative z-index: a positioned z-0 layer paints over in-flow content, which put stars on top of charts. */
 export function Starfield() {
   const ref = useRef<HTMLCanvasElement>(null);
 
@@ -57,5 +58,5 @@ export function Starfield() {
     };
   }, []);
 
-  return <canvas ref={ref} aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 h-full w-full" />;
+  return <canvas ref={ref} aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 h-full w-full" />;
 }

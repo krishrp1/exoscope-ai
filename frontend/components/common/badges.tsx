@@ -6,8 +6,8 @@ import { SPLIT_LABEL } from "@/lib/format";
 const base = "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium whitespace-nowrap";
 
 const DISPOSITION_STYLE: Record<string, string> = {
-  CONFIRMED: "border-success/40 bg-success/10 text-success",
-  "FALSE POSITIVE": "border-warning/40 bg-warning/10 text-warning",
+  CONFIRMED: "border-star/40 bg-star/10 text-star",
+  "FALSE POSITIVE": "border-ice/40 bg-ice/10 text-ice",
   CANDIDATE: "border-accent-violet/40 bg-accent-violet/10 text-accent-violet",
 };
 
