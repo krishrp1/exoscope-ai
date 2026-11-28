@@ -78,8 +78,10 @@ export function HeroTransit({ compact = false }: { compact?: boolean }) {
 
   return (
     <figure ref={figure} className={compact ? "w-full" : "glass relative mx-auto w-full max-w-xl rounded-2xl p-3 sm:p-4"}>
-      <svg viewBox={`0 0 ${W} 362`} role="img" className="h-auto w-full"
-           aria-label="Illustration: a planet crosses in front of its star. The brightness graph below dips while it does.">
+      {/* Two layers: the star (with its costly granulation filter) is drawn once; only the light
+          top layer re-renders each frame. Redrawing the filter every frame made the hero stutter. */}
+      <div className="relative">
+      <svg viewBox={`0 0 ${W} 362`} aria-hidden="true" className="absolute inset-0 h-auto w-full">
         <defs>
           <radialGradient id="sun-limb" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="#ffb347" />
@@ -101,11 +103,14 @@ export function HeroTransit({ compact = false }: { compact?: boolean }) {
           <clipPath id="sun-disc"><circle cx={STAR.x} cy={STAR.y} r={STAR.r} /></clipPath>
         </defs>
 
-        <circle cx={STAR.x} cy={STAR.y} r={STAR.r * 1.45} fill="url(#sun-glow)" opacity={0.5 + 0.5 * ((flux - (1 - DEPTH)) / DEPTH)} />
+        <circle cx={STAR.x} cy={STAR.y} r={STAR.r * 1.45} fill="url(#sun-glow)" opacity="0.8" />
         <circle cx={STAR.x} cy={STAR.y} r={STAR.r} fill="url(#sun-limb)" />
         <g clipPath="url(#sun-disc)" opacity="0.55" style={{ mixBlendMode: "overlay" }}>
           <rect x={STAR.x - STAR.r} y={STAR.y - STAR.r} width={STAR.r * 2} height={STAR.r * 2} filter="url(#sun-granules)" fill="#fff" />
         </g>
+      </svg>
+      <svg viewBox={`0 0 ${W} 362`} role="img" className="relative h-auto w-full"
+           aria-label="Illustration: a planet crosses in front of its star. The brightness graph below dips while it does.">
 
         {/* where the planet has just been, then where it is */}
         {ghosts.map((g, i) => (
@@ -129,6 +134,7 @@ export function HeroTransit({ compact = false }: { compact?: boolean }) {
         <text x={GRAPH.x + GRAPH.w / 2} y={GRAPH.y + GRAPH.h} fill="#a3a6ad" fontSize="11" textAnchor="middle"
               fontFamily="var(--font-geist-sans), sans-serif">Time</text>
       </svg>
+      </div>
       <figcaption className="mt-1 flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-muted-foreground">
         <span>Illustration of the transit method. Not an observation; the dip is exaggerated.</span>
         <ProvenanceBadge kind="synthetic" />

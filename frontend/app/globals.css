@@ -388,7 +388,7 @@ header nav a:focus-visible {
     background: linear-gradient(180deg, rgb(5 6 8 / 0.75) 0%, rgb(5 6 8 / 0.35) 45%, rgb(5 6 8 / 0.92) 100%);
   }
 }
-/* without WebGL: a still observatory in CSS, and a glossy sphere in the fluid's slot */
+/* without WebGL: a still observatory in CSS, and a lit moon in the moon's slot */
 .no-webgl .observatory-scene {
   background:
     radial-gradient(60% 40% at 70% 20%, rgb(143 180 255 / 0.10), transparent 70%),
@@ -397,8 +397,11 @@ header nav a:focus-visible {
 }
 .no-webgl .observatory-fluid {
   border-radius: 50%;
-  background: radial-gradient(circle at 36% 30%, #f2f3f5 0%, #6b6e75 9%, #121317 30%, #000 70%);
-  box-shadow: inset -20px -30px 60px rgb(255 255 255 / 0.06), 0 40px 80px -30px #000;
+  background:
+    radial-gradient(14% 12% at 58% 44%, rgb(0 0 0 / 0.18), transparent 70%),
+    radial-gradient(18% 16% at 40% 62%, rgb(0 0 0 / 0.16), transparent 70%),
+    radial-gradient(circle at 34% 32%, #d9d6cf 0%, #a9a69f 38%, #4a4946 72%, #121212 100%);
+  box-shadow: 0 0 60px -10px rgb(200 205 215 / 0.12);
   max-width: min(60vw, 360px);
 }
 
